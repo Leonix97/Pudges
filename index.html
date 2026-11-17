@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Garfio del Pantano</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d1712">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Garfio">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow+Condensed:wght@500;600;700&display=swap">
 <style>
@@ -45,6 +54,12 @@ h1 em{font-style:normal;color:var(--rust)}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .btn{flex:1;min-width:130px;font:400 17px var(--display);letter-spacing:.04em;padding:12px 16px;border-radius:6px;border:2px solid var(--rust);background:var(--rust);color:#1a0f06;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--bone);border-color:#3b5645}
+.install{display:flex;align-items:center;gap:12px;background:#14231b;border:2px solid var(--rust-dim);border-radius:6px;padding:10px 12px}
+.install img{width:52px;height:52px;border-radius:12px;flex:none}
+.install div{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.install b{font:400 16px var(--display);color:var(--rust);letter-spacing:.03em}
+.install span{font-size:16px;line-height:1.25;color:var(--bone)}
+.install .btn{flex:none;min-width:0;padding:10px 14px;font-size:15px}
 .card.wide{grid-column:1/-1;border-color:var(--rust-dim);background:#1d2a1c}
 .stack{display:flex;flex-direction:column;gap:10px}
 .txt{font:600 20px var(--body);padding:10px 12px;border-radius:6px;border:2px solid #3b5645;background:#0f1a14;color:var(--bone);min-width:0}
@@ -107,6 +122,11 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
       <div class="panel">
         <h1>Garfio del <em>Pantano</em></h1>
         <p class="lede">Eres Morko, el pescador de la ciénaga. Lanzas tu garfio de cadena y arrastras hacia ti lo que muerda. Elige cómo quieres pescar hoy.</p>
+        <div class="install" id="installBox" hidden>
+          <img src="icons/icon-192.png" alt="">
+          <div><b>Instala el juego</b><span id="installMsg">Tenlo en tu pantalla de inicio y juega a pantalla completa.</span></div>
+          <button class="btn" type="button" id="btnInstall">Instalar</button>
+        </div>
         <div class="cards">
           <button class="card wide" type="button" id="m-online"><b>Multijugador</b><span>En línea y en tiempo real: 1 contra 1, 2 contra 1 o 2 contra 2. Equipo Fuego contra Equipo Agua, con runas de poder y tornados. Uno crea la sala, los demás entran con el código y eligen equipo.</span><small>2 a 4 jugadores</small></button>
           <button class="card" type="button" data-mode="clasico" id="m-clasico"><b>Cacería</b><span>Diablillos cruzan por los carriles. Engancha rojos, ranas de oro valen triple, no toques a los aliados azules. 75 segundos.</span><small id="best-clasico">Récord: —</small></button>
@@ -1155,6 +1175,20 @@ function draw(t){
   if(G.banner){const b=G.banner,al=clamp(b.t*2.5,0,1);ctx.globalAlpha=al;ctx.fillStyle='rgba(8,14,11,.72)';ctx.fillRect(0,H*.42-48,W,b.sub?92:70);ctx.fillStyle='#efe6cf';ctx.font='400 32px Bungee, Impact, sans-serif';ctx.fillText(b.txt,W/2,H*.42);if(b.sub){ctx.fillStyle='#e0812c';ctx.font='600 22px "Barlow Condensed", sans-serif';ctx.fillText(b.sub,W/2,H*.42+30);}ctx.globalAlpha=1;}
   ctx.restore();
 }
+/* ---------- instalación (acceso directo) ---------- */
+(()=>{
+  const box=document.getElementById('installBox'),btn=document.getElementById('btnInstall'),msg=document.getElementById('installMsg');
+  const standalone=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
+  if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(standalone)return;
+  let ev=null;
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;btn.hidden=false;msg.textContent='Tenlo en tu pantalla de inicio y juega a pantalla completa.';box.hidden=false;});
+  btn.onclick=async()=>{if(!ev)return;ev.prompt();try{await ev.userChoice;}catch(e){}ev=null;box.hidden=true;};
+  addEventListener('appinstalled',()=>{box.hidden=true;});
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(ios){btn.hidden=true;msg.textContent='En iPhone: toca Compartir (el cuadro con flecha) y luego «Agregar a inicio».';box.hidden=false;}
+})();
+
 bg=buildBG();
 requestAnimationFrame(frame);
 })();
