@@ -131,10 +131,10 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
           <button class="card wide" type="button" id="m-online"><b>Multijugador</b><span>En línea y en tiempo real: 1 contra 1, 2 contra 1 o 2 contra 2. Equipo Fuego contra Equipo Agua, con runas de poder y tornados. Uno crea la sala, los demás entran con el código y eligen equipo.</span><small>2 a 4 jugadores</small></button>
           <button class="card" type="button" data-mode="clasico" id="m-clasico"><b>Cacería</b><span>Diablillos cruzan por los carriles. Engancha rojos, ranas de oro valen triple, no toques a los aliados azules. 75 segundos.</span><small id="best-clasico">Récord: —</small></button>
           <button class="card" type="button" data-mode="horda" id="m-horda"><b>Horda</b><span>Vienen hacia ti sin parar y cada vez más rápido. Arrástralos antes de que te alcancen. Tienes 3 vidas.</span><small id="best-horda">Récord: —</small></button>
-          <button class="card" type="button" data-mode="duelo" id="m-duelo"><b>Duelo</b><span>Otro pescador al otro lado del río. Esquiva su garfio y atrápalo con el tuyo. Engancha las runas que flotan en el río para ganar poderes, pero cuidado con la de escarcha. Gana el primero a 5.</span><small id="best-duelo">Récord: —</small></button>
+          <button class="card" type="button" data-mode="duelo" id="m-duelo"><b>Duelo</b><span>Otro pescador al otro lado del río. Esquiva su garfio y atrápalo con el tuyo. Recoge runas de poder y corazones de vida extra, pero cuidado con la de escarcha y con la noche. Gana el primero a 5.</span><small id="best-duelo">Récord: —</small></button>
           <button class="card" type="button" data-mode="rebote" id="m-rebote"><b>Carambola</b><span>Tu garfio rebota hasta 3 veces en muros. Engancha los muñecos de paja tras las paredes con pocos lanzamientos. 6 niveles.</span><small id="best-rebote">Récord: —</small></button>
         </div>
-        <div class="controls"><strong style="color:var(--bone)">Runas del río (Duelo y Multijugador).</strong> Engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,8 s</span></span> Cada cierto tiempo cruza un tornado que arrastra a quien toque.</div>
+        <div class="controls"><strong style="color:var(--bone)">Duelo y Multijugador.</strong> Las runas aparecen quietas en cada orilla: camina sobre ellas o engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,8 s</span><span style="color:#ff7a8a"><i></i>Corazón: vida extra</span></span> Hay tornados y ciclo de día y noche: de noche solo ves cerca de ti y de tu equipo.</div>
         <div class="controls"><strong style="color:var(--bone)">Controles.</strong> PC: mueve con <kbd>WASD</kbd> o flechas, haz clic para lanzar (o <kbd>Espacio</kbd> hacia el cursor). Poderes: <kbd>Q</kbd> Empujón, <kbd>E</kbd> Lazo. Celular: arrastra el círculo de abajo a la izquierda para caminar y toca en cualquier otro punto para lanzar.</div>
       </div>
     </div>
@@ -312,12 +312,23 @@ function banner(txt,sub,t){G.banner={txt,sub:sub||'',t:t||1.4};}
 function removeUnit(u){u.dead=true;G.units=G.units.filter(v=>v!==u);}
 
 /* ---------- runas y poderes ---------- */
-const RUNE={w:{name:'Runa del Viento',col:'#9ff2dc',glow:'#5fe0c0'},r:{name:'Runa de Raíces',col:'#9bd86a',glow:'#5fae3a'},f:{name:'Runa de Escarcha',col:'#bfe4ff',glow:'#7cc4ff'}};
+const RUNE={v:{name:'Corazón del Pantano',col:'#ff7a8a',glow:'#e2483d'},w:{name:'Runa del Viento',col:'#9ff2dc',glow:'#5fe0c0'},r:{name:'Runa de Raíces',col:'#9bd86a',glow:'#5fae3a'},f:{name:'Runa de Escarcha',col:'#bfe4ff',glow:'#7cc4ff'}};
 const POW={force:{name:'Empujón'},atos:{name:'Lazo de Raíces'}};
 const PUSH_V=625,PUSH_T=.4,FORCE_RANGE=300,ATOS_RANGE=650,ATOS_SPEED=900,ROOT_T=.8,FROST_T=.8;
 function pickKind(){const r=Math.random();return r<.38?'w':r<.76?'r':'f';}
 function addRune(id,k,x,y,vx){G.runes.push({rune:true,id,k,x,y,vx,r:15,ph:rnd(0,6),hooked:null,taken:null});}
-function runesStep(dt){for(const r of G.runes)if(!r.hooked)r.x+=r.vx*dt;G.runes=G.runes.filter(r=>r.hooked||(r.x>-40&&r.x<W+40));}
+function runesStep(dt){for(const r of G.runes)if(!r.hooked)r.x+=r.vx*dt;}
+function runeSpot(){const top=Math.random()<.5;return{x:Math.round(rnd(50,490)),y:Math.round(top?rnd(70,320):rnd(545,800))};}
+function runeTouch(){
+  const list=[G.hero];if(!G.online&&G.ai)list.push(G.ai);
+  for(const a of list){
+    if(a.hooked||a.swept||(a===G.hero&&G.dead>0))continue;
+    const r=G.runes.find(q=>!q.hooked&&dist(a.x,a.y,q.x,q.y)<a.r+q.r);if(!r)continue;
+    G.runes=G.runes.filter(q=>q!==r);
+    if(!G.online)give(a,r.k);
+    else if(a===G.hero){if(r.taken===NET.myId)give(a,r.k);else if(r.taken==null){r.wait=true;NET.pend[r.id]=r;claimRune(r.id);}}
+  }
+}
 function runeHit(h){
   if(!G.runes)return null;
   const mine=G.online?true:(h.owner===G.hero||h.owner===G.ai);if(!mine)return null;
@@ -332,6 +343,7 @@ function runeArrive(owner,r){
 }
 function give(a,k){
   const isMe=a===G.hero;
+  if(k==='v'){a.life=1;spark(a.x,a.y,'#ff7a8a',18);say(a.x,a.y-44,'¡Vida extra!','#ff7a8a');if(isMe){sfx('win');if(G.online)netSend({lf:1});}return;}
   if(k==='f'){a.frozen=FROST_T;spark(a.x,a.y,'#cfeaff',16);say(a.x,a.y-44,'¡Congelado!','#bfe4ff');if(isMe){sfx('bad');G.aiming=null;}return;}
   const it=k==='w'?'force':'atos',had=a.items[it];a.items[it]=1;spark(a.x,a.y,RUNE[k].col,14);
   if(isMe){sfx('win');say(a.x,a.y-44,had?'Ya tenías '+POW[it].name:POW[it].name+' listo',RUNE[k].col);}
@@ -375,6 +387,35 @@ function tornStep(dt){
     }
   }
 }
+const DAY_T=45,NIGHT_T=30,VIS_NIGHT=250;
+function setNight(n,quiet){
+  G.night=n;G.dnT=n?NIGHT_T:DAY_T;if(quiet){G.nk=n?1:0;return;}
+  sfx(n?'whirl':'win');banner(n?'Cae la noche':'Amanece',n?'Solo ves cerca de ti y de tu equipo':'Vuelves a ver todo el pantano',1.5);
+}
+function dnTick(dt){G.dnT-=dt;if(G.dnT<=0){const n=!G.night;if(G.online)broadcast({t:'dn',n:n?1:0});setNight(n);}}
+function visionSources(){
+  const v=[];if(!(G.online&&G.dead>0))v.push(G.hero);
+  if(G.online)for(const id in G.others){const a=G.others[id];if(a.tm===G.myTeam&&!a.dead)v.push(a);}
+  return v;
+}
+function seen(x,y,pad){if(!(G.nk>.45))return true;return visionSources().some(s=>dist(s.x,s.y,x,y)<VIS_NIGHT+(pad||0));}
+let fogC=null;
+function drawFog(){
+  if(!(G.nk>0.01))return;
+  if(!fogC){fogC=document.createElement('canvas');fogC.width=W/2;fogC.height=H/2;}
+  const f=fogC.getContext('2d');f.setTransform(.5,0,0,.5,0,0);
+  f.globalCompositeOperation='source-over';f.clearRect(0,0,W,H);
+  f.fillStyle='rgba(4,9,18,'+(.88*G.nk).toFixed(3)+')';f.fillRect(0,0,W,H);
+  f.globalCompositeOperation='destination-out';
+  for(const s of visionSources()){const g=f.createRadialGradient(s.x,s.y,VIS_NIGHT*.55,s.x,s.y,VIS_NIGHT*1.08);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(1,'rgba(0,0,0,0)');f.fillStyle=g;f.beginPath();f.arc(s.x,s.y,VIS_NIGHT*1.1,0,7);f.fill();}
+  f.globalCompositeOperation='source-over';
+  ctx.drawImage(fogC,0,0,W,H);
+  if(G.nk>.3){ctx.globalAlpha=G.nk*.7;ctx.fillStyle='#e8eefc';for(let i=0;i<14;i++){const x=(i*137)%W,y=(i*71)%120+8;ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;}
+}
+function drawHeart(x,y,s){
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#ff5b6e';ctx.strokeStyle='#5a0d16';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,5);ctx.bezierCurveTo(-9,-1,-6,-9,0,-4);ctx.bezierCurveTo(6,-9,9,-1,0,5);ctx.fill();ctx.stroke();ctx.restore();
+}
 function startPush(a){if(a.hooked)return false;a.push={vx:Math.cos(a.ang)*PUSH_V,vy:Math.sin(a.ang)*PUSH_V,t:PUSH_T};return true;}
 function spawnProj(from,tg,apply){G.proj.push({x:from.x,y:from.y,tg,apply});}
 function projStep(dt){
@@ -391,7 +432,7 @@ function projStep(dt){
 }
 function canAct(){const h=G&&G.hero;return !!(G&&!G.over&&!G.paused&&(G.mode==='duelo'||G.mode==='online')&&h&&!h.hooked&&!h.swept&&!(h.frozen>0)&&!(G.dead>0)&&!(G.freeze>0));}
 function allies(){return G.online?Object.values(G.others).filter(a=>a.tm===G.myTeam&&!a.dead&&!a.hooked):[];}
-function enemies(){return G.online?Object.values(G.others).filter(a=>a.tm!==G.myTeam&&!a.dead):(G.ai?[G.ai]:[]);}
+function enemies(){return (G.online?Object.values(G.others).filter(a=>a.tm!==G.myTeam&&!a.dead):(G.ai?[G.ai]:[])).filter(a=>seen(a.x,a.y,a.r));}
 function pressPower(it){
   if(!canAct()||!G.hero.items[it])return;
   if(G.aiming===it){if(it==='force')castForce(G.hero);else G.aiming=null;return;}
@@ -514,7 +555,7 @@ const MODES={
       G.ai=mkActor(270,140,{x0:30,x1:510,y0:50,y1:350});G.ai.ang=Math.PI/2;G.ai.cd=2.2;G.ai.wx=270;G.ai.wy=140;
       G.sH=0;G.sA=0;G.cdMax=1.4;G.range=560;G.river=true;G.freeze=0;
       for(let i=0;i<2;i++)this.frog(rnd(40,500));
-      G.runes=[];G.proj=[];G.runeT=2.5;G.rid=0;G.torn=null;G.tornT=rnd(16,22);
+      G.runes=[];G.proj=[];G.runeT=2.5;G.rid=0;G.torn=null;G.tornT=rnd(16,22);G.lifeT=rnd(18,26);setNight(false,true);
       banner('¡Duelo!','Primero a 5 · engancha runas del río');
     },
     frog(x){const d=Math.random()<.5?1:-1;G.units.push({type:'frog',x:x??(d>0?-20:W+20),y:rnd(405,460),vx:d*rnd(35,70),r:16,ph:rnd(0,6)});},
@@ -524,7 +565,9 @@ const MODES={
       for(const u of G.units){if(u.hooked)continue;u.x+=u.vx*dt;if(u.x<-30)u.x=W+30;if(u.x>W+30)u.x=-30;}
       if(G.units.length<2&&Math.random()<dt*.4)this.frog();
       if(!G.torn){G.tornT-=dt;if(G.tornT<=0){G.tornT=rnd(20,30);spawnTorn(newTornCanon());}}
-      G.runeT-=dt;if(G.runeT<=0){G.runeT=rnd(3.5,6);if(G.runes.length<2){const d=Math.random()<.5?1:-1;addRune(++G.rid,pickKind(),d>0?-20:W+20,rnd(400,462),d*rnd(50,75));}}
+      G.runeT-=dt;if(G.runeT<=0){G.runeT=rnd(4,7);if(G.runes.filter(r=>r.k!=='v').length<3){const p=runeSpot();addRune(++G.rid,pickKind(),p.x,p.y,0);}}
+      G.lifeT-=dt;if(G.lifeT<=0){G.lifeT=rnd(25,35);if(!G.runes.some(r=>r.k==='v')){const p=runeSpot();addRune(++G.rid,'v',p.x,p.y,0);}}
+      dnTick(dt);
       this.ai(dt);
     },
     ai(dt){
@@ -535,7 +578,7 @@ const MODES={
       if(a.frozen>0){a.vx=a.vy=0;return;}
       const hk=G.hooks.find(k=>k.team==='hero'&&k.state==='out'&&!k.carry);
       // poderes
-      if(a.items.atos&&!h.hooked&&!(h.rooted>0)&&dist(a.x,a.y,h.x,h.y)<ATOS_RANGE&&Math.random()<dt*.9){a.items.atos=0;spawnProj(a,h,true);sfx('tink');a.cd=Math.min(a.cd,.45);say(a.x,a.y+46,'¡Lazo!','#9bd86a');}
+      if(a.items.atos&&!h.hooked&&(!(G.nk>.45)||dist(a.x,a.y,h.x,h.y)<300)&&!(h.rooted>0)&&dist(a.x,a.y,h.x,h.y)<ATOS_RANGE&&Math.random()<dt*.9){a.items.atos=0;spawnProj(a,h,true);sfx('tink');a.cd=Math.min(a.cd,.45);say(a.x,a.y+46,'¡Lazo!','#9bd86a');}
       if(a.items.force&&!a.push&&hk&&hk!==a.fdec&&dist(hk.hx,hk.hy,a.x,a.y)<190){
         a.fdec=hk;
         if(!G.hooks.some(k=>k.owner===a)&&Math.random()<.6+.05*G.sH){const px=-hk.dy,py=hk.dx,side=((a.x-hk.hx)*px+(a.y-hk.hy)*py)>=0?1:-1;a.ang=Math.atan2(py*side,px*side);startPush(a);a.items.force=0;sfx('throw');}
@@ -545,21 +588,23 @@ const MODES={
       if(!(a.rooted>0)&&!a.push&&!aiHook){
         let tx=a.wx,ty=a.wy;
         if(hk&&a.dodge){a.react-=dt;if(a.react<=0){const px=-hk.dy,py=hk.dx,side=((a.x-hk.hx)*px+(a.y-hk.hy)*py)>=0?1:-1;tx=a.x+px*side*140;ty=a.y+py*side*140;}}
-        else if(dist(a.x,a.y,a.wx,a.wy)<12||Math.random()<dt*.5){a.wx=rnd(60,480);a.wy=rnd(70,330);}
+        else if(dist(a.x,a.y,a.wx,a.wy)<12||Math.random()<dt*.5){const mine=G.runes.filter(r=>!r.hooked&&r.y<380&&r.k!=='f');if(mine.length&&Math.random()<.65){const r=mine[0];a.wx=r.x;a.wy=r.y;}else{a.wx=rnd(60,480);a.wy=rnd(70,330);}}
         const d=dist(a.x,a.y,tx,ty),sp=185+G.sH*14;
         if(d>2){const k=Math.min(1,sp*dt/d);const nx=clamp(a.x+(tx-a.x)*k,a.b.x0,a.b.x1),ny=clamp(a.y+(ty-a.y)*k,a.b.y0,a.b.y1);a.vx=(nx-a.x)/dt;a.vy=(ny-a.y)/dt;a.x=nx;a.y=ny;}
       }else if(!a.push){a.vx=a.vy=0;}
       // garfio
       if(a.cd<=0&&!G.hooks.some(k=>k.team==='ai')&&!h.hooked){
-        const rn=G.runes.filter(r=>!r.hooked&&r.k!=='f'&&dist(a.x,a.y,r.x,r.y)<G.range-20);
-        if(rn.length&&Math.random()<.35){const r=rn[0],t=dist(a.x,a.y,r.x,r.y)/950;launch(a,'ai',Math.atan2(r.y-a.y,r.x+r.vx*t-a.x));a.cd=rnd(1.3,2.2);return;}
-        const dd=dist(a.x,a.y,h.x,h.y);
-        if(dd<G.range+10){const t=dd/950,lead=h.rooted>0||h.frozen>0?0:.55+.1*G.sH;const ax=h.x+h.vx*t*lead,ay=h.y+h.vy*t*lead;launch(a,'ai',Math.atan2(ay-a.y,ax-a.x)+rnd(-1,1)*Math.max(.04,(h.rooted>0?.05:.17)-.02*G.sH));a.cd=rnd(1.5,2.7)-.12*G.sH;}
+        const rn=G.runes.filter(r=>!r.hooked&&r.k!=='f'&&r.y<480&&dist(a.x,a.y,r.x,r.y)>90&&dist(a.x,a.y,r.x,r.y)<G.range-20);
+        if(rn.length&&Math.random()<.2){const r=rn[0],t=dist(a.x,a.y,r.x,r.y)/950;launch(a,'ai',Math.atan2(r.y-a.y,r.x+r.vx*t-a.x));a.cd=rnd(1.3,2.2);return;}
+        const dd=dist(a.x,a.y,h.x,h.y),sees=!(G.nk>.45)||dd<300;
+        if(dd<G.range+10&&sees){const t=dd/950,lead=h.rooted>0||h.frozen>0?0:.55+.1*G.sH;const ax=h.x+h.vx*t*lead,ay=h.y+h.vy*t*lead;launch(a,'ai',Math.atan2(ay-a.y,ax-a.x)+rnd(-1,1)*Math.max(.04,(h.rooted>0?.05:.17)-.02*G.sH));a.cd=rnd(1.5,2.7)-.12*G.sH;}
         else a.cd=.25;
       }else if(!a.push)a.ang=Math.atan2(h.y-a.y,h.x-a.x);
     },
     deliver(h,u){
-      if(u===G.ai){G.sH++;goo(G.hero.x,G.hero.y,'#b06ad8');sfx('win');banner('¡Lo atrapaste!',G.sH+' a '+G.sA,1);G.freeze=1;G.hooks=[];}
+      if(u===G.ai&&G.ai.life){G.ai.life=0;goo(G.hero.x,G.hero.y,'#ff7a8a');sfx('bad');banner('¡Tenía vida extra!','Esta captura no cuenta',1);G.freeze=1;G.hooks=[];}
+      else if(u===G.hero&&G.hero.life){G.hero.life=0;goo(G.ai.x,G.ai.y,'#ff7a8a');sfx('win');banner('¡Te salvó tu vida extra!','Esta captura no cuenta',1);G.freeze=1;G.hooks=[];}
+      else if(u===G.ai){G.sH++;goo(G.hero.x,G.hero.y,'#b06ad8');sfx('win');banner('¡Lo atrapaste!',G.sH+' a '+G.sA,1);G.freeze=1;G.hooks=[];}
       else if(u===G.hero){G.sA++;goo(G.ai.x,G.ai.y,'#4fb07a');sfx('hurt');G.shake=14;banner('Te atraparon',G.sH+' a '+G.sA,1);G.freeze=1;G.hooks=[];}
       else{removeUnit(u);goo(h.owner.x,h.owner.y,'#6fbf5a');if(h.team==='hero'){say(G.hero.x,G.hero.y-40,'una rana…','#9fd18a');sfx('gulp');}}
     },
@@ -572,7 +617,7 @@ const MODES={
       G.online=true;G.myTeam=(P[me]&&P[me].tm)|0;G.flip=G.myTeam===1;
       const sp=this.spawn(me);G.hero=mkActor(sp[0],sp[1],{x0:30,x1:510,y0:505,y1:830});G.hero.inv=1;
       G.cdMax=1.4;G.range=560;G.river=true;G.dead=0;G.others={};G.slot=this.slot(me);G.sc=[0,0];
-      G.runes=[];G.proj=[];G.runeT=2.5;G.lastSt='';NET.pend={};NET.runeOwner={};G.torn=null;G.tornT=rnd(16,22);
+      G.runes=[];G.proj=[];G.runeT=2.5;G.lastSt='';NET.pend={};NET.runeOwner={};NET.gn=0;G.torn=null;G.tornT=rnd(16,22);G.lifeT=rnd(18,26);setNight(false,true);
       for(const id in P)if(id!==me)this.ensure(id);
       banner('Equipo '+TEAM[G.myTeam].name,NET.target+' capturas para ganar',1.8);
     },
@@ -593,12 +638,17 @@ const MODES={
     },
     scores(){const P=NET.players,s=[0,0];for(const id in P){const pr=P[id];if(pr.gm!==NET.gm)continue;s[1-(pr.tm|0)]+=pr.c|0;}return s;},
     scored(){sfx('win');say(G.hero.x,G.hero.y-44,'¡+1 para '+TEAM[G.myTeam].name+'!',TEAM[G.myTeam].chain);},
-    latch(h,t){if(t.rune){if(h.owner===G.hero)claimRune(t.id);return;}if(t===G.hero){NET.c++;netSend({c:NET.c,got:{by:h.pid,id:h.id,gm:NET.gm,n:NET.c}});}},
+    latch(h,t){if(t.rune){if(h.owner===G.hero)claimRune(t.id);return;}if(t===G.hero){let sv=0;if(G.hero.life){G.hero.life=0;G.savedHit=true;sv=1;netSend({lf:0});}else NET.c++;NET.gn=(NET.gn||0)+1;netSend({c:NET.c,got:{by:h.pid,id:h.id,gm:NET.gm,n:NET.gn,sv}});}},
     update(dt){
       const P=NET.players,me=NET.myId,h=G.hero;
       if(G.dead>0){G.dead-=dt;if(G.dead<=0){G.dead=0;Object.assign(h,{x:rnd(50,490),y:rnd(540,810),inv:1.2,cd:.3,hooked:null,frozen:0,rooted:0,push:null,swept:null,skel:false});say(h.x,h.y-44,'¡De vuelta!','#efe6cf');netSend({dead:false});}}
       if(NET.isHost&&!G.torn){G.tornT-=dt;if(G.tornT<=0){G.tornT=rnd(20,30);const c={...newTornCanon(),gm:NET.gm};broadcast({t:'torn',c});spawnTorn(c);}}
-      if(NET.isHost){G.runeT-=dt;if(G.runeT<=0){G.runeT=rnd(3.5,6);if(G.runes.length<2){const d=Math.random()<.5?1:-1,r={id:++NET.rid,k:pickKind(),x:d>0?-20:W+20,y:Math.round(rnd(400,462)),vx:Math.round(d*rnd(50,75)),gm:NET.gm};broadcast({t:'rune',r});addRuneCanon(r);}}}
+      if(NET.isHost){
+        const mk=k=>{const p=runeSpot(),r={id:++NET.rid,k,x:p.x,y:p.y,vx:0,gm:NET.gm};broadcast({t:'rune',r});addRuneCanon(r);};
+        G.runeT-=dt;if(G.runeT<=0){G.runeT=rnd(4,7);if(G.runes.filter(r=>r.k!=='v').length<3)mk(pickKind());}
+        G.lifeT-=dt;if(G.lifeT<=0){G.lifeT=rnd(25,35);if(!G.runes.some(r=>r.k==='v'))mk('v');}
+        dnTick(dt);
+      }
       for(const id in P){
         if(id===me)continue;const pr=P[id];if(pr.gm!==NET.gm)continue;
         const a=this.ensure(id);a.tm=pr.tm|0;const dead=!!pr.dead;
@@ -617,7 +667,7 @@ const MODES={
             k.pts[0]={x:o[0],y:o[1]};k.hx=o[0]+Math.cos(ang)*a.r;k.hy=o[1]+Math.sin(ang)*a.r;k.pid=id;k.id=hk.id;k.tm=a.tm;
           }
         }
-        a.st=typeof pr.st==='string'?pr.st:'';
+        a.st=typeof pr.st==='string'?pr.st:'';a.life=pr.lf?1:0;
         const at=pr.at;
         if(at&&at.n!==a.lastAt){a.lastAt=at.n;if(at.gm===NET.gm){const tg=at.to===me?G.hero:G.others[at.to];if(tg)spawnProj(a,tg,tg===G.hero);}}
         const fo=pr.fo;
@@ -627,8 +677,8 @@ const MODES={
           a.lastGot=gk;
           if(g.gm===NET.gm){
             const k=G.hooks.find(q=>q.pid===g.by&&q.id===g.id&&!q.carry);
-            if(k&&!a.hooked){k.carry=a;a.hooked=k;explode(a);sfx('latch');spark(k.hx,k.hy,'#fff',8);if(k.state==='out')startBack(k);}
-            else if(g.by===me)this.scored();
+            if(k&&!a.hooked){k.carry=a;a.hooked=k;a.sv=!!g.sv;explode(a);sfx('latch');spark(k.hx,k.hy,'#fff',8);if(k.state==='out')startBack(k);}
+            else if(g.by===me){if(g.sv)say(G.hero.x,G.hero.y-44,'Tenía vida extra','#ff7a8a');else this.scored();}
           }
         }
       }
@@ -639,8 +689,9 @@ const MODES={
       if(!(G.dead>0)){const c=toView(h.x,h.y);netSend({x:Math.round(c[0]),y:Math.round(c[1]),a:+(h.ang+(G.flip?Math.PI:0)).toFixed(2)});}
     },
     deliver(h,u){
-      if(u===G.hero){goo(h.owner.x,h.owner.y,'#e2483d');sfx('hurt');G.shake=14;G.dead=2.2;G.aiming=null;banner('¡Te devoraron!','Vuelves en 2 segundos',1.4);netSend({dead:true});}
-      else if(u&&u.id){goo(h.owner.x,h.owner.y,TEAM[u.tm].chain);if(h.pid===NET.myId)this.scored();else sfx('gulp');}
+      if(u===G.hero&&G.savedHit){G.savedHit=false;goo(h.owner.x,h.owner.y,'#ff7a8a');sfx('bad');G.dead=.6;G.aiming=null;banner('¡Te salvó tu vida extra!','No cuenta para el rival',1.2);netSend({dead:true});}
+      else if(u===G.hero){goo(h.owner.x,h.owner.y,'#e2483d');sfx('hurt');G.shake=14;G.dead=2.2;G.aiming=null;banner('¡Te devoraron!','Vuelves en 2 segundos',1.4);netSend({dead:true});}
+      else if(u&&u.id){goo(h.owner.x,h.owner.y,TEAM[u.tm].chain);if(h.pid===NET.myId){if(u.sv)say(G.hero.x,G.hero.y-44,'Tenía vida extra','#ff7a8a');else this.scored();}else sfx('gulp');u.sv=false;}
     },
     hud(){const s=G.sc||[0,0];return[TEAM[G.myTeam].name+' '+s[G.myTeam],'a '+NET.target,s[1-G.myTeam]+' '+TEAM[1-G.myTeam].name];},
     result(){
@@ -684,7 +735,7 @@ const TEAM=[
 ];
 const NET={peer:null,isHost:false,host:null,conns:{},code:'',myId:null,players:{},me:{},gm:0,c:0,hkId:0,phase:'off',target:5,last:0,dirty:false,next:1};
 const PREFIX='garfio-pantano-';
-const KEYS=['n','tm','gm','c','x','y','a','hk','got','dead','at','fo','st'];
+const KEYS=['n','tm','gm','c','x','y','a','hk','got','dead','at','fo','st','lf'];
 const ID_RE=/^(h|p\d{1,4})$/;
 function idCmp(a,b){const r=k=>k==='h'?0:+k.slice(1);return r(a)-r(b);}
 function gotKey(g){return g?g.by+':'+g.id+':'+g.n+':'+g.gm:null;}
@@ -803,6 +854,7 @@ function guestRecv(m){
   else if(m.t==='lobby')backToLobby();
   else if(m.t==='tg'){NET.target=m.v|0||5;NET.dirty=true;}
   else if(m.t==='rune'&&m.r&&m.r.gm===NET.gm&&G&&G.mode==='online')addRuneCanon(m.r);
+  else if(m.t==='dn'&&G&&G.mode==='online'&&NET.phase==='play')setNight(!!m.n);
   else if(m.t==='torn'&&m.c&&m.c.gm===NET.gm&&G&&G.mode==='online'&&['x0','vx','y0','amp','ph'].every(k=>typeof m.c[k]==='number'))spawnTorn(m.c);
   else if(m.t==='rtake'&&typeof m.id==='number'&&ID_RE.test(m.by))takeRune(m.id,m.by);
   else if(m.t==='full'||m.t==='busy'){const msg=m.t==='full'?'La sala está llena: ya hay 4 jugadores.':'Esa sala está en plena partida. Intenta cuando vuelvan a la sala.';leaveRoom();onCtl.hidden=false;lobbyEl.hidden=true;onStatus.textContent=msg;}
@@ -836,7 +888,7 @@ function takeRune(id,by){
 }
 function beginMatch(gm){
   NET.gm=gm;NET.c=0;NET.phase='play';NET.pend={};NET.runeOwner={};NET.rid=NET.rid||0;
-  netSend({gm,c:0,hk:null,got:null,dead:false,at:null,fo:null,st:''});
+  netSend({gm,c:0,hk:null,got:null,dead:false,at:null,fo:null,st:'',lf:0});
   start('online');
 }
 function backToLobby(){
@@ -953,7 +1005,8 @@ function fx(dt){
 function step(dt){
   heroUpdate(dt);
   MODES[G.mode].update(dt);
-  if(G.runes&&!G.over&&!(G.freeze>0)){runesStep(dt);projStep(dt);tornStep(dt);}
+  if(G.runes&&!G.over&&!(G.freeze>0)){runesStep(dt);projStep(dt);tornStep(dt);runeTouch();}
+  if(G.night!==undefined){const tg=G.night?1:0;G.nk=(G.nk||0)+Math.sign(tg-(G.nk||0))*Math.min(Math.abs(tg-(G.nk||0)),dt/2.5);}
   if(!G.over)for(const h of [...G.hooks])updateHook(h,dt);
   fx(dt);
   setHud(MODES[G.mode].hud());
@@ -1067,6 +1120,7 @@ function drawRune(r,t){
   ctx.shadowBlur=0;ctx.strokeStyle=R.col;ctx.lineWidth=2.5;ctx.stroke();
   ctx.lineWidth=2;ctx.lineCap='round';ctx.beginPath();
   if(r.k==='w'){for(let i=-1;i<=1;i++){ctx.moveTo(x-7,y+i*5);ctx.quadraticCurveTo(x,y+i*5-4,x+7,y+i*5);}}
+  else if(r.k==='v'){ctx.stroke();ctx.restore();drawHeart(x,y,1.25);return;}
   else if(r.k==='r'){ctx.moveTo(x,y+7);ctx.lineTo(x,y-4);ctx.moveTo(x,y);ctx.lineTo(x-5,y-6);ctx.moveTo(x,y-1);ctx.lineTo(x+5,y-7);ctx.moveTo(x,y+7);ctx.lineTo(x-5,y+9);ctx.moveTo(x,y+7);ctx.lineTo(x+5,y+9);}
   else{for(let i=0;i<3;i++){const a=i*Math.PI/3+Math.PI/2;ctx.moveTo(x-Math.cos(a)*7,y-Math.sin(a)*7);ctx.lineTo(x+Math.cos(a)*7,y+Math.sin(a)*7);}}
   ctx.stroke();ctx.restore();
@@ -1150,8 +1204,8 @@ function draw(t){
   drawSplats(G.paused||G.over?0:1/60);
   for(const u of G.units)drawUnit(u,t);
   if(G.runes)for(const r of G.runes)drawRune(r,t);
-  if(G.ai&&!G.online){drawFisher(G.ai,'#5e4670','#3a2948','#ff5a4a',t);drawStatus(G.ai,G.ai.frozen>0,G.ai.rooted>0,!!G.ai.swept);}
-  if(G.online)for(const id in G.others){const a=G.others[id];if(a.dead&&!a.hooked)continue;drawPlayer(a,a.tm,a.slot,(NET.players[id]&&NET.players[id].n)||'Jugador',t);drawStatus(a,a.st==='f',a.st==='r',a.st==='s');}
+  if(G.ai&&!G.online&&(G.ai.hooked||seen(G.ai.x,G.ai.y,G.ai.r))){drawFisher(G.ai,'#5e4670','#3a2948','#ff5a4a',t);drawStatus(G.ai,G.ai.frozen>0,G.ai.rooted>0,!!G.ai.swept);if(G.ai.life&&!G.ai.skel)drawHeart(G.ai.x,G.ai.y-G.ai.r-10,1.2);}
+  if(G.online)for(const id in G.others){const a=G.others[id];if(a.dead&&!a.hooked)continue;if(a.tm!==G.myTeam&&!a.hooked&&!seen(a.x,a.y,a.r))continue;drawPlayer(a,a.tm,a.slot,(NET.players[id]&&NET.players[id].n)||'Jugador',t);drawStatus(a,a.st==='f',a.st==='r',a.st==='s');if(a.life&&!a.skel)drawHeart(a.x+30,a.y-a.r-16,1.1);}
   // anillo de recarga
   const h=G.hero;
   const hidden=G.online&&G.dead>0;
@@ -1160,7 +1214,7 @@ function draw(t){
   else if(!G.hooks.some(k=>k.team==='hero')){ctx.strokeStyle='rgba(224,129,44,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(h.x,h.y,h.r+7,0,7);ctx.stroke();}
   if(G.online){if(!hidden)drawPlayer(h,G.myTeam,G.slot,'Tú',t);}
   else drawFisher(h,'#4c6b5c','#2d4339','#ffd25a',t);
-  if(!hidden){drawStatus(h,h.frozen>0,h.rooted>0,!!h.swept);drawFacing(h);}
+  if(!hidden){drawStatus(h,h.frozen>0,h.rooted>0,!!h.swept);drawFacing(h);if(h.life&&!h.skel)drawHeart(h.x+(G.online?30:0),h.y-h.r-(G.online?16:10),1.2);}
   for(const k of G.hooks)drawHook(k);
   if(G.proj)for(const p of G.proj)drawProj(p);
   if(G.torn)drawTorn(t);
@@ -1168,6 +1222,7 @@ function draw(t){
   if(!touchMode&&!G.hooks.some(k=>k.team==='hero')&&h.cd<=0){ctx.strokeStyle='rgba(239,230,207,.13)';ctx.setLineDash([3,9]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(h.x,h.y);const a=Math.atan2(aim.y-h.y,aim.x-h.x),L=Math.min(G.mode==='rebote'?260:G.range,dist(h.x,h.y,aim.x,aim.y));ctx.lineTo(h.x+Math.cos(a)*L,h.y+Math.sin(a)*L);ctx.stroke();ctx.setLineDash([]);}
   for(const p of G.parts){ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();}
   ctx.globalAlpha=1;
+  drawFog();
   ctx.textAlign='center';ctx.font='400 18px Bungee, Impact, sans-serif';
   for(const tx of G.texts){ctx.globalAlpha=clamp(tx.life,0,1);ctx.fillStyle='#0d1712';ctx.fillText(tx.txt,tx.x+2,tx.y+2);ctx.fillStyle=tx.col;ctx.fillText(tx.txt,tx.x,tx.y);}
   ctx.globalAlpha=1;
