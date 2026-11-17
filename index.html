@@ -71,7 +71,7 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
 #codeIn{flex:1;min-width:120px;font:400 22px var(--display);letter-spacing:.2em;text-transform:uppercase;padding:10px 12px;border-radius:6px;border:2px solid #3b5645;background:#0f1a14;color:var(--bone)}
 #codeIn:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
 .powers{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;z-index:2}
-.pw{width:76px;height:76px;border-radius:50%;border:3px solid var(--pw);background:rgba(10,22,18,.82);color:var(--bone);font:600 15px var(--body);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;box-shadow:0 0 18px -4px var(--pw);touch-action:manipulation}
+.pw{width:84px;height:84px;touch-action:none;-webkit-tap-highlight-color:transparent;border-radius:50%;border:3px solid var(--pw);background:rgba(10,22,18,.82);color:var(--bone);font:600 15px var(--body);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;box-shadow:0 0 18px -4px var(--pw);touch-action:manipulation}
 .pw .k{font:400 13px var(--display);color:var(--pw)}
 .pw-w{--pw:#9ff2dc}.pw-r{--pw:#9bd86a}
 .pw.on{background:var(--pw);color:#0d1712}.pw.on .k{color:#0d1712}
@@ -108,22 +108,22 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
         <h1>Garfio del <em>Pantano</em></h1>
         <p class="lede">Eres Morko, el pescador de la ciénaga. Lanzas tu garfio de cadena y arrastras hacia ti lo que muerda. Elige cómo quieres pescar hoy.</p>
         <div class="cards">
+          <button class="card wide" type="button" id="m-online"><b>Multijugador</b><span>En línea y en tiempo real: 1 contra 1, 2 contra 1 o 2 contra 2. Equipo Fuego contra Equipo Agua, con runas de poder y tornados. Uno crea la sala, los demás entran con el código y eligen equipo.</span><small>2 a 4 jugadores</small></button>
           <button class="card" type="button" data-mode="clasico" id="m-clasico"><b>Cacería</b><span>Diablillos cruzan por los carriles. Engancha rojos, ranas de oro valen triple, no toques a los aliados azules. 75 segundos.</span><small id="best-clasico">Récord: —</small></button>
           <button class="card" type="button" data-mode="horda" id="m-horda"><b>Horda</b><span>Vienen hacia ti sin parar y cada vez más rápido. Arrástralos antes de que te alcancen. Tienes 3 vidas.</span><small id="best-horda">Récord: —</small></button>
           <button class="card" type="button" data-mode="duelo" id="m-duelo"><b>Duelo</b><span>Otro pescador al otro lado del río. Esquiva su garfio y atrápalo con el tuyo. Engancha las runas que flotan en el río para ganar poderes, pero cuidado con la de escarcha. Gana el primero a 5.</span><small id="best-duelo">Récord: —</small></button>
           <button class="card" type="button" data-mode="rebote" id="m-rebote"><b>Carambola</b><span>Tu garfio rebota hasta 3 veces en muros. Engancha los muñecos de paja tras las paredes con pocos lanzamientos. 6 niveles.</span><small id="best-rebote">Récord: —</small></button>
-          <button class="card wide" type="button" id="m-online"><b>Duelo por equipos</b><span>En línea y en tiempo real: 1 contra 1, 2 contra 1 o 2 contra 2. Equipo Fuego contra Equipo Agua, con runas de poder en el río. Uno crea la sala, los demás entran con el código y eligen equipo.</span><small>2 a 4 jugadores</small></button>
         </div>
-        <div class="controls"><strong style="color:var(--bone)">Runas del río (Duelo).</strong> Engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,7 s</span></span></div>
+        <div class="controls"><strong style="color:var(--bone)">Runas del río (Duelo y Multijugador).</strong> Engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,8 s</span></span> Cada cierto tiempo cruza un tornado que arrastra a quien toque.</div>
         <div class="controls"><strong style="color:var(--bone)">Controles.</strong> PC: mueve con <kbd>WASD</kbd> o flechas, haz clic para lanzar (o <kbd>Espacio</kbd> hacia el cursor). Poderes: <kbd>Q</kbd> Empujón, <kbd>E</kbd> Lazo. Celular: arrastra el círculo de abajo a la izquierda para caminar y toca en cualquier otro punto para lanzar.</div>
       </div>
     </div>
 
     <div class="overlay" id="online" hidden>
       <div class="panel">
-        <h1>Duelo <em>por equipos</em></h1>
+        <h1><em>Multijugador</em></h1>
         <div class="stack" id="onCtl">
-          <p class="lede">De 2 a 4 jugadores, cada uno en su equipo. Uno crea la sala y pasa el código de 4 letras; los demás lo escriben y tocan «Unirse». No hace falta cuenta ni estar en la misma red.</p>
+          <p class="lede">De 2 a 4 jugadores en tiempo real, cada uno en su equipo. Uno crea la sala y pasa el código de 4 letras; los demás lo escriben y tocan «Unirse». No hace falta cuenta ni estar en la misma red.</p>
           <label class="fld" for="nameIn">Tu nombre</label>
           <input id="nameIn" class="txt" maxlength="12" placeholder="Morko" autocomplete="off" spellcheck="false">
           <button class="btn" type="button" id="btnCreate">Crear sala</button>
@@ -185,7 +185,7 @@ paintBest();
 
 /* ---------- sonido ---------- */
 let AC=null,muted=false;
-const SFX={throw:['sawtooth',190,80,.14,.07],latch:['square',560,280,.1,.08],gulp:['triangle',150,55,.22,.16],bad:['sawtooth',130,45,.32,.12],tink:['square',980,720,.05,.05],hurt:['sawtooth',95,40,.35,.16],win:['triangle',440,990,.4,.13]};
+const SFX={boom:['sawtooth',140,28,.45,.2],whirl:['triangle',260,90,.6,.09],throw:['sawtooth',190,80,.14,.07],latch:['square',560,280,.1,.08],gulp:['triangle',150,55,.22,.16],bad:['sawtooth',130,45,.32,.12],tink:['square',980,720,.05,.05],hurt:['sawtooth',95,40,.35,.16],win:['triangle',440,990,.4,.13]};
 function sfx(k){if(muted)return;try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();const P=SFX[k],t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type=P[0];o.frequency.setValueAtTime(P[1],t);o.frequency.exponentialRampToValueAtTime(P[2],t+P[3]);g.gain.setValueAtTime(P[4],t);g.gain.exponentialRampToValueAtTime(.001,t+P[3]);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+P[3]+.03);}catch(e){}}
 document.getElementById('btnSound').onclick=e=>{muted=!muted;e.target.textContent='Sonido: '+(muted?'no':'sí');};
 
@@ -213,7 +213,7 @@ function setJoy(p){let dx=p.x-JOY.x,dy=p.y-JOY.y;const m=Math.hypot(dx,dy);if(m>
 
 /* ---------- estado ---------- */
 let G=null;
-function mkActor(x,y,b){return{x,y,r:24,vx:0,vy:0,cd:0,inv:0,ang:-Math.PI/2,hooked:null,b,items:{},frozen:0,rooted:0,push:null};}
+function mkActor(x,y,b){return{actor:true,x,y,r:24,vx:0,vy:0,cd:0,inv:0,ang:-Math.PI/2,hooked:null,b,items:{},frozen:0,rooted:0,push:null};}
 
 function launch(owner,team,ang){
   const c=Math.cos(ang),s=Math.sin(ang);
@@ -224,7 +224,7 @@ function launch(owner,team,ang){
 function heroThrow(x,y){
   if(!G||G.over||G.paused||G.freeze>0)return;
   const h=G.hero;
-  if(h.cd>0||h.hooked||G.dead>0||h.frozen>0||G.hooks.some(k=>k.team==='hero'))return;
+  if(h.cd>0||h.hooked||G.dead>0||h.frozen>0||h.swept||G.hooks.some(k=>k.team==='hero'))return;
   if(G.mode==='rebote'){if(G.hooksLeft<=0||G.levelDone)return;G.hooksLeft--;}
   const hk=launch(h,'hero',Math.atan2(y-h.y,x-h.x));
   h.cd=G.cdMax;
@@ -234,11 +234,11 @@ function heroThrow(x,y){
 function hitRect(x,y,r,R){const cx=clamp(x,R.x,R.x+R.w),cy=clamp(y,R.y,R.y+R.h);return (x-cx)**2+(y-cy)**2<r*r;}
 
 function findTarget(h){
-  if(G.online){const rr=runeHit(h);if(rr)return rr;const me=G.hero;if(h.owner!==me&&h.tm!==G.myTeam&&!(G.dead>0)&&!me.hooked&&me.inv<=0&&dist(h.hx,h.hy,me.x,me.y)<h.r+me.r)return me;return null;}
+  if(G.online){const rr=runeHit(h);if(rr)return rr;const me=G.hero;if(h.owner!==me&&h.tm!==G.myTeam&&!(G.dead>0)&&!me.hooked&&!me.swept&&me.inv<=0&&dist(h.hx,h.hy,me.x,me.y)<h.r+me.r)return me;return null;}
   const rr=runeHit(h);if(rr)return rr;
   for(const u of G.units){if(!u.hooked&&!u.dead&&dist(h.hx,h.hy,u.x,u.y)<h.r+u.r)return u;}
-  if(h.team==='hero'&&G.ai&&!G.online&&!G.ai.hooked&&dist(h.hx,h.hy,G.ai.x,G.ai.y)<h.r+G.ai.r)return G.ai;
-  if(h.team==='ai'&&!(G.online&&G.freeze>0)&&!G.hero.hooked&&G.hero.inv<=0&&dist(h.hx,h.hy,G.hero.x,G.hero.y)<h.r+G.hero.r)return G.hero;
+  if(h.team==='hero'&&G.ai&&!G.online&&!G.ai.hooked&&!G.ai.swept&&dist(h.hx,h.hy,G.ai.x,G.ai.y)<h.r+G.ai.r)return G.ai;
+  if(h.team==='ai'&&!(G.online&&G.freeze>0)&&!G.hero.hooked&&!G.hero.swept&&G.hero.inv<=0&&dist(h.hx,h.hy,G.hero.x,G.hero.y)<h.r+G.hero.r)return G.hero;
   return null;
 }
 function startBack(h){h.state='back';h.pts.push({x:h.hx,y:h.hy});}
@@ -263,7 +263,7 @@ function updateHook(h,dt){
         else{startBack(h);return;}
       }
       const t=findTarget(h);
-      if(t){h.carry=t;t.hooked=h;if(t.push)t.push=null;if(G.aiming&&t===G.hero)G.aiming=null;sfx('latch');spark(h.hx,h.hy,'#fff',8);startBack(h);if(MODES[G.mode].latch)MODES[G.mode].latch(h,t);return;}
+      if(t){h.carry=t;t.hooked=h;if(t.push)t.push=null;if(t.actor&&(G.mode==='duelo'||G.mode==='online'))explode(t);if(G.aiming&&t===G.hero)G.aiming=null;sfx('latch');spark(h.hx,h.hy,'#fff',8);startBack(h);if(MODES[G.mode].latch)MODES[G.mode].latch(h,t);return;}
       if(h.travel>=h.range){startBack(h);return;}
     }
   }else{
@@ -294,13 +294,13 @@ function removeUnit(u){u.dead=true;G.units=G.units.filter(v=>v!==u);}
 /* ---------- runas y poderes ---------- */
 const RUNE={w:{name:'Runa del Viento',col:'#9ff2dc',glow:'#5fe0c0'},r:{name:'Runa de Raíces',col:'#9bd86a',glow:'#5fae3a'},f:{name:'Runa de Escarcha',col:'#bfe4ff',glow:'#7cc4ff'}};
 const POW={force:{name:'Empujón'},atos:{name:'Lazo de Raíces'}};
-const PUSH_V=625,PUSH_T=.4,FORCE_RANGE=300,ATOS_RANGE=650,ATOS_SPEED=900,ROOT_T=.7,FROST_T=.7;
+const PUSH_V=625,PUSH_T=.4,FORCE_RANGE=300,ATOS_RANGE=650,ATOS_SPEED=900,ROOT_T=.8,FROST_T=.8;
 function pickKind(){const r=Math.random();return r<.38?'w':r<.76?'r':'f';}
 function addRune(id,k,x,y,vx){G.runes.push({rune:true,id,k,x,y,vx,r:15,ph:rnd(0,6),hooked:null,taken:null});}
 function runesStep(dt){for(const r of G.runes)if(!r.hooked)r.x+=r.vx*dt;G.runes=G.runes.filter(r=>r.hooked||(r.x>-40&&r.x<W+40));}
 function runeHit(h){
   if(!G.runes)return null;
-  const mine=G.online?h.owner===G.hero:(h.owner===G.hero||h.owner===G.ai);if(!mine)return null;
+  const mine=G.online?true:(h.owner===G.hero||h.owner===G.ai);if(!mine)return null;
   for(const r of G.runes)if(!r.hooked&&dist(h.hx,h.hy,r.x,r.y)<h.r+r.r)return r;
   return null;
 }
@@ -317,6 +317,12 @@ function give(a,k){
   if(isMe){sfx('win');say(a.x,a.y-44,had?'Ya tenías '+POW[it].name:POW[it].name+' listo',RUNE[k].col);}
 }
 function tickActor(a,dt){
+  if(a.tornImm>0)a.tornImm-=dt;
+  if(a.swept){
+    const T=G.torn;a.swept.t-=dt;
+    if(!T||a.swept.t<=0||a.hooked){a.swept=null;a.tornImm=1.5;}
+    else{a.swept.ang+=dt*9;const b=a.b,nx=clamp(T.x+Math.cos(a.swept.ang)*28,b.x0,b.x1),ny=clamp(T.y+Math.sin(a.swept.ang)*20,b.y0,b.y1);a.vx=(nx-a.x)/dt;a.vy=(ny-a.y)/dt;a.x=nx;a.y=ny;a.ang=a.swept.ang;return;}
+  }
   if(a.frozen>0)a.frozen=Math.max(0,a.frozen-dt);
   if(a.rooted>0)a.rooted=Math.max(0,a.rooted-dt);
   if(a.push){
@@ -325,6 +331,28 @@ function tickActor(a,dt){
     a.vx=(nx-a.x)/dt;a.vy=(ny-a.y)/dt;a.x=nx;a.y=ny;a.push.t-=dt;
     G.parts.push({x:a.x+rnd(-9,9),y:a.y+rnd(-9,9),vx:-a.vx*.15,vy:-a.vy*.15,life:.35,max:.35,col:'#bff6e8',r:rnd(2,4)});
     if(a.push.t<=0)a.push=null;
+  }
+}
+function spawnTorn(c){
+  const f=!!G.flip;
+  G.torn={x:f?W-c.x0:c.x0,vx:f?-c.vx:c.vx,y0:f?H-c.y0:c.y0,amp:f?-c.amp:c.amp,ph:c.ph,t:0,r:44,y:0};
+  G.torn.y=G.torn.y0+Math.sin(G.torn.ph)*G.torn.amp;
+  sfx('whirl');banner('¡Tornado!','Aléjate de su camino',1.1);
+}
+function newTornCanon(){const d=Math.random()<.5?1:-1;return{x0:d>0?-60:W+60,vx:d*130,y0:Math.round(rnd(120,740)),amp:Math.round(rnd(30,70)),ph:+rnd(0,6).toFixed(2)};}
+function tornStep(dt){
+  const T=G.torn;if(!T)return;
+  T.t+=dt;T.x+=T.vx*dt;T.y=T.y0+Math.sin(T.t*1.4+T.ph)*T.amp;
+  if(Math.random()<.5)G.parts.push({x:T.x+rnd(-30,30),y:T.y+rnd(-10,14),vx:rnd(-60,60),vy:rnd(-80,-20),life:.5,max:.5,col:'#8fa894',r:rnd(1.5,3)});
+  if(T.x<-90||T.x>W+90){G.torn=null;return;}
+  const list=[G.hero];if(!G.online&&G.ai)list.push(G.ai);
+  for(const a of list){
+    if(a.swept||a.tornImm>0||a.hooked||(a===G.hero&&G.dead>0))continue;
+    if(dist(a.x,a.y,T.x,T.y)<T.r+a.r*.6){
+      a.swept={t:1.1,ang:Math.atan2(a.y-T.y,a.x-T.x)};a.push=null;
+      if(a===G.hero){G.aiming=null;sfx('whirl');}
+      say(a.x,a.y-44,'¡Arrastrado!','#cfe3dc');
+    }
   }
 }
 function startPush(a){if(a.hooked)return false;a.push={vx:Math.cos(a.ang)*PUSH_V,vy:Math.sin(a.ang)*PUSH_V,t:PUSH_T};return true;}
@@ -341,7 +369,7 @@ function projStep(dt){
   }
   G.proj=G.proj.filter(p=>!p.done);
 }
-function canAct(){const h=G&&G.hero;return !!(G&&!G.over&&!G.paused&&(G.mode==='duelo'||G.mode==='online')&&h&&!h.hooked&&!(h.frozen>0)&&!(G.dead>0)&&!(G.freeze>0));}
+function canAct(){const h=G&&G.hero;return !!(G&&!G.over&&!G.paused&&(G.mode==='duelo'||G.mode==='online')&&h&&!h.hooked&&!h.swept&&!(h.frozen>0)&&!(G.dead>0)&&!(G.freeze>0));}
 function allies(){return G.online?Object.values(G.others).filter(a=>a.tm===G.myTeam&&!a.dead&&!a.hooked):[];}
 function enemies(){return G.online?Object.values(G.others).filter(a=>a.tm!==G.myTeam&&!a.dead):(G.ai?[G.ai]:[]);}
 function pressPower(it){
@@ -380,7 +408,10 @@ function castAtos(tg){
   sfx('tink');
 }
 const powersEl=document.getElementById('powers'),pwForce=document.getElementById('pwForce'),pwAtos=document.getElementById('pwAtos'),tipEl=document.getElementById('tip');
-pwForce.onclick=()=>pressPower('force');pwAtos.onclick=()=>pressPower('atos');
+for(const [b,it] of [[pwForce,'force'],[pwAtos,'atos']]){
+  b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressPower(it);});
+  b.addEventListener('click',e=>{if(e.detail===0)pressPower(it);});
+}
 let powKey='';
 function syncPowers(){
   if(G&&G.aiming&&!canAct())G.aiming=null;
@@ -463,22 +494,23 @@ const MODES={
       G.ai=mkActor(270,140,{x0:30,x1:510,y0:50,y1:350});G.ai.ang=Math.PI/2;G.ai.cd=2.2;G.ai.wx=270;G.ai.wy=140;
       G.sH=0;G.sA=0;G.cdMax=1.4;G.range=560;G.river=true;G.freeze=0;
       for(let i=0;i<2;i++)this.frog(rnd(40,500));
-      G.runes=[];G.proj=[];G.runeT=2.5;G.rid=0;
+      G.runes=[];G.proj=[];G.runeT=2.5;G.rid=0;G.torn=null;G.tornT=rnd(16,22);
       banner('¡Duelo!','Primero a 5 · engancha runas del río');
     },
     frog(x){const d=Math.random()<.5?1:-1;G.units.push({type:'frog',x:x??(d>0?-20:W+20),y:rnd(405,460),vx:d*rnd(35,70),r:16,ph:rnd(0,6)});},
-    reset(){G.hooks=[];G.proj=[];G.aiming=null;for(const a of [G.hero,G.ai])Object.assign(a,{frozen:0,rooted:0,push:null});G.runes.forEach(r=>r.hooked=null);G.hero.hooked=null;G.ai.hooked=null;Object.assign(G.hero,{x:270,y:720,cd:.4,inv:.6});Object.assign(G.ai,{x:270,y:140,cd:1.6,wx:270,wy:140});},
+    reset(){G.hooks=[];G.proj=[];G.aiming=null;for(const a of [G.hero,G.ai])Object.assign(a,{frozen:0,rooted:0,push:null});G.runes.forEach(r=>r.hooked=null);G.hero.hooked=null;G.ai.hooked=null;for(const a of [G.hero,G.ai])Object.assign(a,{skel:false,swept:null,tornImm:0});Object.assign(G.hero,{x:rnd(60,480),y:rnd(560,800),cd:.4,inv:.6});const ax=rnd(60,480),ay=rnd(80,320);Object.assign(G.ai,{x:ax,y:ay,cd:1.6,wx:ax,wy:ay});},
     update(dt){
       if(G.freeze>0){G.freeze-=dt;if(G.freeze<=0){if(G.sH>=5||G.sA>=5)return endGame();this.reset();}return;}
       for(const u of G.units){if(u.hooked)continue;u.x+=u.vx*dt;if(u.x<-30)u.x=W+30;if(u.x>W+30)u.x=-30;}
       if(G.units.length<2&&Math.random()<dt*.4)this.frog();
+      if(!G.torn){G.tornT-=dt;if(G.tornT<=0){G.tornT=rnd(20,30);spawnTorn(newTornCanon());}}
       G.runeT-=dt;if(G.runeT<=0){G.runeT=rnd(3.5,6);if(G.runes.length<2){const d=Math.random()<.5?1:-1;addRune(++G.rid,pickKind(),d>0?-20:W+20,rnd(400,462),d*rnd(50,75));}}
       this.ai(dt);
     },
     ai(dt){
       const a=G.ai,h=G.hero;
       tickActor(a,dt);
-      if(a.hooked)return;
+      if(a.hooked||a.swept)return;
       a.cd-=dt;
       if(a.frozen>0){a.vx=a.vy=0;return;}
       const hk=G.hooks.find(k=>k.team==='hero'&&k.state==='out'&&!k.carry);
@@ -514,13 +546,13 @@ const MODES={
     hud(){return['Tú '+G.sH,'—','Rival '+G.sA];},
     result(){const win=G.sH>=5;return{title:win?'¡Ganaste el duelo!':'Perdiste el duelo',big:G.sH+' – '+G.sA,sub:win?'El río es tuyo':'Él fue más rápido esta vez',key:'duelo',val:win?(best.duelo||0)+1:best.duelo||0,force:true};}
   },
-  online:{label:'EQUIPOS',
+  online:{label:'MULTI',
     init(){
       const me=NET.myId,P=NET.players;
       G.online=true;G.myTeam=(P[me]&&P[me].tm)|0;G.flip=G.myTeam===1;
       const sp=this.spawn(me);G.hero=mkActor(sp[0],sp[1],{x0:30,x1:510,y0:505,y1:830});G.hero.inv=1;
       G.cdMax=1.4;G.range=560;G.river=true;G.dead=0;G.others={};G.slot=this.slot(me);G.sc=[0,0];
-      G.runes=[];G.proj=[];G.runeT=2.5;G.lastSt='';NET.pend={};NET.runeOwner={};
+      G.runes=[];G.proj=[];G.runeT=2.5;G.lastSt='';NET.pend={};NET.runeOwner={};G.torn=null;G.tornT=rnd(16,22);
       for(const id in P)if(id!==me)this.ensure(id);
       banner('Equipo '+TEAM[G.myTeam].name,NET.target+' capturas para ganar',1.8);
     },
@@ -541,14 +573,17 @@ const MODES={
     },
     scores(){const P=NET.players,s=[0,0];for(const id in P){const pr=P[id];if(pr.gm!==NET.gm)continue;s[1-(pr.tm|0)]+=pr.c|0;}return s;},
     scored(){sfx('win');say(G.hero.x,G.hero.y-44,'¡+1 para '+TEAM[G.myTeam].name+'!',TEAM[G.myTeam].chain);},
-    latch(h,t){if(t.rune){claimRune(t.id);return;}if(t===G.hero){NET.c++;netSend({c:NET.c,got:{by:h.pid,id:h.id,gm:NET.gm,n:NET.c}});}},
+    latch(h,t){if(t.rune){if(h.owner===G.hero)claimRune(t.id);return;}if(t===G.hero){NET.c++;netSend({c:NET.c,got:{by:h.pid,id:h.id,gm:NET.gm,n:NET.c}});}},
     update(dt){
       const P=NET.players,me=NET.myId,h=G.hero;
-      if(G.dead>0){G.dead-=dt;if(G.dead<=0){G.dead=0;const sp=this.spawn(me);Object.assign(h,{x:sp[0],y:sp[1],inv:1.2,cd:.3,hooked:null,frozen:0,rooted:0,push:null});netSend({dead:false});}}
+      if(G.dead>0){G.dead-=dt;if(G.dead<=0){G.dead=0;Object.assign(h,{x:rnd(50,490),y:rnd(540,810),inv:1.2,cd:.3,hooked:null,frozen:0,rooted:0,push:null,swept:null,skel:false});say(h.x,h.y-44,'¡De vuelta!','#efe6cf');netSend({dead:false});}}
+      if(NET.isHost&&!G.torn){G.tornT-=dt;if(G.tornT<=0){G.tornT=rnd(20,30);const c={...newTornCanon(),gm:NET.gm};broadcast({t:'torn',c});spawnTorn(c);}}
       if(NET.isHost){G.runeT-=dt;if(G.runeT<=0){G.runeT=rnd(3.5,6);if(G.runes.length<2){const d=Math.random()<.5?1:-1,r={id:++NET.rid,k:pickKind(),x:d>0?-20:W+20,y:Math.round(rnd(400,462)),vx:Math.round(d*rnd(50,75)),gm:NET.gm};broadcast({t:'rune',r});addRuneCanon(r);}}}
       for(const id in P){
         if(id===me)continue;const pr=P[id];if(pr.gm!==NET.gm)continue;
-        const a=this.ensure(id);a.tm=pr.tm|0;a.dead=!!pr.dead;
+        const a=this.ensure(id);a.tm=pr.tm|0;const dead=!!pr.dead;
+        if(a.skel&&!a.hooked){a.skelT-=dt;if(a.skelT<=0||(a.dead&&!dead))a.skel=false;}
+        a.dead=dead;
         if(!a.hooked&&typeof pr.x==='number'&&typeof pr.y==='number'){
           const v=toView(pr.x,pr.y);
           if(dist(a.x,a.y,v[0],v[1])>160){a.x=v[0];a.y=v[1];}else{const k=Math.min(1,dt*14);a.x+=(v[0]-a.x)*k;a.y+=(v[1]-a.y)*k;}
@@ -572,7 +607,7 @@ const MODES={
           a.lastGot=gk;
           if(g.gm===NET.gm){
             const k=G.hooks.find(q=>q.pid===g.by&&q.id===g.id&&!q.carry);
-            if(k&&!a.hooked){k.carry=a;a.hooked=k;sfx('latch');spark(k.hx,k.hy,'#fff',8);if(k.state==='out')startBack(k);}
+            if(k&&!a.hooked){k.carry=a;a.hooked=k;explode(a);sfx('latch');spark(k.hx,k.hy,'#fff',8);if(k.state==='out')startBack(k);}
             else if(g.by===me)this.scored();
           }
         }
@@ -580,7 +615,7 @@ const MODES={
       for(const id in G.others)if(!P[id]){this.drop(id);if(G.over)return;}
       G.sc=this.scores();
       if(G.sc[0]>=NET.target||G.sc[1]>=NET.target)return endGame();
-      const st=h.frozen>0?'f':h.rooted>0?'r':'';if(st!==G.lastSt){G.lastSt=st;netSend({st});}
+      const st=h.swept?'s':h.frozen>0?'f':h.rooted>0?'r':'';if(st!==G.lastSt){G.lastSt=st;netSend({st});}
       if(!(G.dead>0)){const c=toView(h.x,h.y);netSend({x:Math.round(c[0]),y:Math.round(c[1]),a:+(h.ang+(G.flip?Math.PI:0)).toFixed(2)});}
     },
     deliver(h,u){
@@ -748,6 +783,7 @@ function guestRecv(m){
   else if(m.t==='lobby')backToLobby();
   else if(m.t==='tg'){NET.target=m.v|0||5;NET.dirty=true;}
   else if(m.t==='rune'&&m.r&&m.r.gm===NET.gm&&G&&G.mode==='online')addRuneCanon(m.r);
+  else if(m.t==='torn'&&m.c&&m.c.gm===NET.gm&&G&&G.mode==='online'&&['x0','vx','y0','amp','ph'].every(k=>typeof m.c[k]==='number'))spawnTorn(m.c);
   else if(m.t==='rtake'&&typeof m.id==='number'&&ID_RE.test(m.by))takeRune(m.id,m.by);
   else if(m.t==='full'||m.t==='busy'){const msg=m.t==='full'?'La sala está llena: ya hay 4 jugadores.':'Esa sala está en plena partida. Intenta cuando vuelvan a la sala.';leaveRoom();onCtl.hidden=false;lobbyEl.hidden=true;onStatus.textContent=msg;}
 }
@@ -772,7 +808,10 @@ function takeRune(id,by){
   r.taken=by;
   if(by===NET.myId){if(r.wait){delete NET.pend[id];give(G.hero,r.k);}return;}
   delete NET.pend[id];
+  if(r.hooked&&r.hooked.pid===by)return;
   if(r.hooked){r.hooked.carry=null;r.hooked=null;}
+  const q=G.hooks.find(k=>k.pid===by&&k.state==='out'&&!k.carry);
+  if(q&&G.runes.includes(r)){q.carry=r;r.hooked=q;startBack(q);return;}
   if(G.runes.includes(r)){spark(r.x,r.y,RUNE[r.k].col,10);G.runes=G.runes.filter(x=>x!==r);}
 }
 function beginMatch(gm){
@@ -870,9 +909,9 @@ function heroUpdate(dt){
   const h=G.hero;h.cd=Math.max(0,h.cd-dt);h.inv=Math.max(0,h.inv-dt);
   if(G.runes&&!(G.freeze>0))tickActor(h,dt);
   const ownHook=G.hooks.some(k=>k.team==='hero');
-  if(h.hooked||G.freeze>0||G.dead>0||h.frozen>0||h.rooted>0||h.push||ownHook){
+  if(h.hooked||G.freeze>0||G.dead>0||h.frozen>0||h.rooted>0||h.push||h.swept||ownHook){
     if(!h.push){h.vx=h.vy=0;}
-    if(!touchMode&&!ownHook&&!(h.frozen>0)&&!h.push&&!h.hooked)h.ang=Math.atan2(aim.y-h.y,aim.x-h.x);
+    if(!touchMode&&!ownHook&&!(h.frozen>0)&&!h.push&&!h.swept&&!h.hooked)h.ang=Math.atan2(aim.y-h.y,aim.x-h.x);
     return;
   }
   let mx=(keys.r||0)-(keys.l||0),my=(keys.d||0)-(keys.u||0);
@@ -894,7 +933,7 @@ function fx(dt){
 function step(dt){
   heroUpdate(dt);
   MODES[G.mode].update(dt);
-  if(G.runes&&!G.over&&!(G.freeze>0)){runesStep(dt);projStep(dt);}
+  if(G.runes&&!G.over&&!(G.freeze>0)){runesStep(dt);projStep(dt);tornStep(dt);}
   if(!G.over)for(const h of [...G.hooks])updateHook(h,dt);
   fx(dt);
   setHud(MODES[G.mode].hud());
@@ -931,6 +970,7 @@ function buildBG(){
 }
 function shadow(x,y,r){ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(x,y+r*.85,r*.95,r*.32,0,0,7);ctx.fill();}
 function drawFisher(a,body,hood,eye,t){
+  if(a.skel){drawSkeleton(a,t);return;}
   const {x,y,r,ang}=a;
   if(a.inv>0&&Math.floor(t*14)%2)ctx.globalAlpha=.45;
   shadow(x,y,r);
@@ -1011,7 +1051,41 @@ function drawRune(r,t){
   else{for(let i=0;i<3;i++){const a=i*Math.PI/3+Math.PI/2;ctx.moveTo(x-Math.cos(a)*7,y-Math.sin(a)*7);ctx.lineTo(x+Math.cos(a)*7,y+Math.sin(a)*7);}}
   ctx.stroke();ctx.restore();
 }
-function drawStatus(a,fr,ro){
+function drawSkeleton(a,t){
+  const {x,y,r}=a,bone='#e9e2cc',dark='#2a2620';
+  shadow(x,y,r);
+  ctx.strokeStyle=bone;ctx.lineCap='round';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x,y-r*.05);ctx.lineTo(x,y+r*.75);ctx.stroke();
+  for(let i=0;i<3;i++){const yy=y+r*.12+i*r*.2,w=r*(.55-i*.1);ctx.beginPath();ctx.moveTo(x-w,yy+3);ctx.quadraticCurveTo(x,yy-5,x+w,yy+3);ctx.stroke();}
+  ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x-r*.35,y+r*.85);ctx.lineTo(x-r*.7,y+r*1.05);ctx.moveTo(x+r*.35,y+r*.85);ctx.lineTo(x+r*.7,y+r*1.05);ctx.stroke();
+  ctx.fillStyle=bone;ctx.beginPath();ctx.arc(x,y-r*.42,r*.5,0,7);ctx.fill();
+  ctx.fillRect(x-r*.28,y-r*.12,r*.56,r*.2);
+  ctx.fillStyle=dark;ctx.beginPath();ctx.arc(x-r*.19,y-r*.47,r*.13,0,7);ctx.arc(x+r*.19,y-r*.47,r*.13,0,7);ctx.fill();
+  ctx.beginPath();ctx.moveTo(x,y-r*.32);ctx.lineTo(x-r*.06,y-r*.22);ctx.lineTo(x+r*.06,y-r*.22);ctx.fill();
+  ctx.fillStyle='#b3271e';ctx.beginPath();ctx.arc(x+r*.3,y-r*.05+Math.sin(t*5)*2,2.5,0,7);ctx.arc(x-r*.25,y+r*.4,2,0,7);ctx.fill();
+}
+function explode(a){
+  a.skel=true;a.skelT=4;
+  for(let i=0;i<32;i++){const q=rnd(0,6.28),v=rnd(90,340);G.parts.push({x:a.x,y:a.y,vx:Math.cos(q)*v,vy:Math.sin(q)*v,life:rnd(.4,.9),max:.9,col:i%3?'#b3271e':'#6e120c',r:rnd(2.5,5.5)});}
+  for(let i=0;i<8;i++){const q=rnd(0,6.28),v=rnd(80,220);G.parts.push({x:a.x,y:a.y,vx:Math.cos(q)*v,vy:Math.sin(q)*v,life:.7,max:.7,col:'#e9e2cc',r:rnd(2,3.5)});}
+  (G.splats=G.splats||[]).push({x:a.x,y:a.y,t:6,s:rnd(.8,1.2)});
+  G.shake=Math.max(G.shake,10);sfx('boom');
+}
+function drawSplats(dt){
+  if(!G.splats)return;
+  for(const p of G.splats){p.t-=dt;ctx.globalAlpha=clamp(p.t/6,0,1)*.55;ctx.fillStyle='#5a120c';ctx.beginPath();ctx.ellipse(p.x,p.y+12,26*p.s,11*p.s,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(p.x+20*p.s,p.y+4,5,0,7);ctx.arc(p.x-22*p.s,p.y+18,4,0,7);ctx.fill();}
+  ctx.globalAlpha=1;G.splats=G.splats.filter(p=>p.t>0);
+}
+function drawTorn(t){
+  const T=G.torn;if(!T)return;
+  ctx.save();ctx.lineCap='round';
+  ctx.globalAlpha=.18;ctx.fillStyle='#9fb8b0';ctx.beginPath();ctx.ellipse(T.x,T.y+14,T.r,T.r*.36,0,0,7);ctx.fill();
+  for(let i=0;i<8;i++){const k=i/7,yy=T.y+12-k*86,rx=10+k*38,wob=Math.sin(t*7+i*.9)*7*(1-k*.4);ctx.globalAlpha=.22+.18*(1-k);ctx.strokeStyle=i%2?'#cfe3dc':'#9fb8b0';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(T.x+wob,yy,rx,rx*.3,0,t*3+i,t*3+i+4.6);ctx.stroke();}
+  ctx.globalAlpha=.85;ctx.fillStyle='#6b8a5a';for(let i=0;i<6;i++){const q=t*8+i*1.05,R=20+(i%3)*10;ctx.fillRect(T.x+Math.cos(q)*R-2,T.y-20-i*9+Math.sin(q)*R*.3-2,4,4);}
+  ctx.restore();
+}
+function drawStatus(a,fr,ro,sw){
+  if(sw){ctx.strokeStyle='rgba(207,227,220,.8)';ctx.lineWidth=2.5;const q=performance.now()/90;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(a.x,a.y,a.r+6+i*5,q+i*2,q+i*2+2.2);ctx.stroke();}}
   if(ro){
     ctx.fillStyle='rgba(127,194,79,.22)';ctx.beginPath();ctx.ellipse(a.x,a.y+a.r*.8,a.r*1.25,a.r*.48,0,0,7);ctx.fill();
     ctx.strokeStyle='#7fc24f';ctx.lineWidth=3;ctx.lineCap='round';
@@ -1053,10 +1127,11 @@ function draw(t){
     ctx.restore();return;
   }
   for(const R of G.walls)drawWall(R);
+  drawSplats(G.paused||G.over?0:1/60);
   for(const u of G.units)drawUnit(u,t);
   if(G.runes)for(const r of G.runes)drawRune(r,t);
-  if(G.ai&&!G.online){drawFisher(G.ai,'#5e4670','#3a2948','#ff5a4a',t);drawStatus(G.ai,G.ai.frozen>0,G.ai.rooted>0);}
-  if(G.online)for(const id in G.others){const a=G.others[id];if(a.dead&&!a.hooked)continue;drawPlayer(a,a.tm,a.slot,(NET.players[id]&&NET.players[id].n)||'Jugador',t);drawStatus(a,a.st==='f',a.st==='r');}
+  if(G.ai&&!G.online){drawFisher(G.ai,'#5e4670','#3a2948','#ff5a4a',t);drawStatus(G.ai,G.ai.frozen>0,G.ai.rooted>0,!!G.ai.swept);}
+  if(G.online)for(const id in G.others){const a=G.others[id];if(a.dead&&!a.hooked)continue;drawPlayer(a,a.tm,a.slot,(NET.players[id]&&NET.players[id].n)||'Jugador',t);drawStatus(a,a.st==='f',a.st==='r',a.st==='s');}
   // anillo de recarga
   const h=G.hero;
   const hidden=G.online&&G.dead>0;
@@ -1065,9 +1140,10 @@ function draw(t){
   else if(!G.hooks.some(k=>k.team==='hero')){ctx.strokeStyle='rgba(224,129,44,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(h.x,h.y,h.r+7,0,7);ctx.stroke();}
   if(G.online){if(!hidden)drawPlayer(h,G.myTeam,G.slot,'Tú',t);}
   else drawFisher(h,'#4c6b5c','#2d4339','#ffd25a',t);
-  if(!hidden){drawStatus(h,h.frozen>0,h.rooted>0);drawFacing(h);}
+  if(!hidden){drawStatus(h,h.frozen>0,h.rooted>0,!!h.swept);drawFacing(h);}
   for(const k of G.hooks)drawHook(k);
   if(G.proj)for(const p of G.proj)drawProj(p);
+  if(G.torn)drawTorn(t);
   drawAiming(t);
   if(!touchMode&&!G.hooks.some(k=>k.team==='hero')&&h.cd<=0){ctx.strokeStyle='rgba(239,230,207,.13)';ctx.setLineDash([3,9]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(h.x,h.y);const a=Math.atan2(aim.y-h.y,aim.x-h.x),L=Math.min(G.mode==='rebote'?260:G.range,dist(h.x,h.y,aim.x,aim.y));ctx.lineTo(h.x+Math.cos(a)*L,h.y+Math.sin(a)*L);ctx.stroke();ctx.setLineDash([]);}
   for(const p of G.parts){ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();}
