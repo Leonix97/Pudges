@@ -29,6 +29,12 @@ html,body{height:100%}
 body{background:var(--bog);color:var(--bone);font-family:var(--body);overflow:hidden;-webkit-user-select:none;user-select:none}
 #app{height:100%;display:flex;flex-direction:column}
 .hud{display:flex;align-items:center;gap:12px;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(var(--bog),transparent);font-size:20px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums;min-height:44px}
+.clock{display:inline-flex;align-items:center;gap:8px;font:600 16px var(--body);color:var(--bone);white-space:nowrap;font-variant-numeric:tabular-nums}
+.clock .ico{width:16px;height:16px;border-radius:50%;flex:none;background:#f2c14a;box-shadow:0 0 8px #f2c14a}
+.clock .ico.moon{background:transparent;box-shadow:inset -5px 2px 0 0 #dfe6ff}
+.cyc{position:relative;width:96px;height:10px;border-radius:5px;flex:none;background:linear-gradient(90deg,#d9a93a 0 60%,#26345e 60% 100%);border:1px solid #3b5645}
+.cyc .mk{position:absolute;top:-5px;left:0;width:4px;height:18px;margin-left:-2px;border-radius:2px;background:#efe6cf;box-shadow:0 0 4px #000}
+@media (max-width:700px){.cyc{display:none}}
 .hud .mode{font-family:var(--display);font-size:14px;color:var(--rust);letter-spacing:.06em}
 .hud .grow{flex:1;display:flex;gap:16px;justify-content:center;min-width:0}
 .hud .grow span{white-space:nowrap}
@@ -119,6 +125,7 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
 <div id="app">
   <div class="hud">
     <span class="mode" id="hudMode">PANTANO</span>
+    <span class="clock" id="clock" hidden><span class="ico" id="clkIco"></span><span class="cyc" aria-hidden="true"><span class="mk" id="clkMk"></span></span><span id="clkTxt"></span></span>
     <div class="grow"><span id="hud1"></span><span id="hud2"></span><span id="hud3"></span></div>
     <button class="btn-icon" id="btnSound" type="button">Sonido: sí</button>
     <button class="btn-icon" id="btnMenu" type="button">Menú</button>
@@ -150,7 +157,7 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
           <button class="card" type="button" data-mode="duelo" id="m-duelo"><b>Duelo</b><span>Otro pescador al otro lado del río. Esquiva su garfio y atrápalo con el tuyo. Recoge runas de poder y corazones de vida extra, pero cuidado con la de escarcha y con la noche. Gana el primero a 20.</span><small id="best-duelo">Récord: —</small></button>
           <button class="card" type="button" data-mode="rebote" id="m-rebote"><b>Carambola</b><span>Tu garfio rebota hasta 3 veces en muros. Engancha los muñecos de paja tras las paredes con pocos lanzamientos. 6 niveles.</span><small id="best-rebote">Récord: —</small></button>
         </div>
-        <div class="controls"><strong style="color:var(--bone)">Duelo y Multijugador.</strong> Las runas aparecen quietas en cada orilla: camina sobre ellas o engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,8 s</span><span style="color:#ff7a8a"><i></i>Corazón: vida extra</span><span style="color:#ffd27a"><i></i>Ilusión: 2 copias tuyas</span><span style="color:#c9bfff"><i></i>Triple: gancho triple</span><span style="color:#ff8a3d"><i></i>Velocidad: 8 s más rápido</span><span style="color:#8fe3ff"><i></i>Zeus: ves todo el mapa 6 s</span></span> Los poderes se acumulan. Hay tornados, portales en las paredes de atrás y ciclo de día y noche: tu visión es limitada y se acorta de noche. Cada captura te sube de nivel: más visión, garfio más largo y más velocidad.</div>
+        <div class="controls"><strong style="color:var(--bone)">Duelo y Multijugador.</strong> Las runas aparecen quietas en cada orilla: camina sobre ellas o engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,8 s</span><span style="color:#ff7a8a"><i></i>Corazón: vida extra</span><span style="color:#ffd27a"><i></i>Ilusión: 2 copias tuyas</span><span style="color:#c9bfff"><i></i>Triple: gancho triple</span><span style="color:#ff8a3d"><i></i>Velocidad: 8 s más rápido</span><span style="color:#8fe3ff"><i></i>Zeus: ves todo el mapa 6 s</span></span> Los poderes se acumulan. Hay tornados, portales en las paredes de atrás y ciclo de día y noche: tu visión es limitada y se acorta de noche. Cada captura te sube de nivel: más visión, garfio más largo y más velocidad. Con el garfio muy largo y los portales abiertos, lánzalo recto hacia atrás para dar la vuelta completa al pantano.</div>
         <div class="controls"><strong style="color:var(--bone)">Controles.</strong> PC: mueve con <kbd>WASD</kbd> o flechas, haz clic para lanzar (o <kbd>Espacio</kbd> hacia el cursor). Poderes: <kbd>Q</kbd> Empujón, <kbd>E</kbd> Lazo, <kbd>R</kbd> Gancho triple. Celular: arrastra el círculo de abajo a la izquierda para caminar y toca en cualquier otro punto para lanzar.</div>
       </div>
     </div>
@@ -308,12 +315,16 @@ function updateHook(h,dt){
       const offX=h.hx<8||h.hx>W-8,offY=h.hy<8||h.hy>H-8;
       if(offY&&!offX&&G.portal){
         const ex=h.hy<8?8:H-8,ox=h.hy<8?H-8:8;
-        h.pts.push({x:h.hx,y:ex});h.pts.push({x:h.hx,y:ox,jump:true});h.hy=ox;
+        h.pts.push({x:h.hx,y:ex});h.pts.push({x:h.hx,y:ox,jump:true});h.hy=ox;h.wrapped=true;
         spark(h.hx,ex,'#b98bff',10);spark(h.hx,ox,'#b98bff',10);sfx('tink');continue;
       }
       if(offX||offY){
         if(h.bounces<h.maxB){if(offX)h.dx*=-1;if(offY)h.dy*=-1;h.hx=clamp(h.hx,8,W-8);h.hy=clamp(h.hy,8,H-8);h.pts.push({x:h.hx,y:h.hy});h.bounces++;sfx('tink');spark(h.hx,h.hy,'#ffcf8a',5);}
         else{startBack(h);return;}
+      }
+      if(h.wrapped&&h.owner===G.hero&&!G.hero.hooked&&!(G.dead>0)&&(G.mode==='duelo'||G.mode==='online')&&dist(h.hx,h.hy,G.hero.x,G.hero.y)<h.r+G.hero.r){
+        h.self=true;h.home={x:h.pts[0].x,y:h.pts[0].y};h.carry=G.hero;G.hero.hooked=h;G.hero.push=null;G.aiming=null;
+        sfx('latch');spark(h.hx,h.hy,'#b98bff',14);sayU(G.hero.x,G.hero.y,44,'¡Vuelta completa!','#d9c2ff');startBack(h);return;
       }
       if(hookPopsIlls(h)){startBack(h);return;}
       const t=findTarget(h);
@@ -321,7 +332,7 @@ function updateHook(h,dt){
       if(h.travel>=h.range){startBack(h);return;}
     }
   }else{
-    h.pts[0]={x:h.owner.x,y:h.owner.y};
+    h.pts[0]=h.self?{x:h.home.x,y:h.home.y}:{x:h.owner.x,y:h.owner.y};
     let step=h.back*dt;
     while(step>0&&h.pts.length){
       const p=h.pts[h.pts.length-1],d=dist(h.hx,h.hy,p.x,p.y);
@@ -333,6 +344,7 @@ function updateHook(h,dt){
 }
 function finishHook(h){
   const hi=G.hooks.indexOf(h);if(hi<0)return;G.hooks.splice(hi,1);
+  if(h.self){const a=h.carry;if(a){a.hooked=null;a.x=h.home.x;a.y=h.home.y;a.inv=Math.max(a.inv||0,.4);spark(a.x,a.y,'#b98bff',16);sayU(a.x,a.y,44,'¡Diste la vuelta al pantano!','#d9c2ff');}return;}
   if(h.carry&&h.carry.rune){const r=h.carry;r.hooked=null;G.runes=G.runes.filter(x=>x!==r);runeArrive(h.owner,r);return;}
   if(h.carry){const u=h.carry;u.hooked=null;MODES[G.mode].deliver(h,u);}
   else if(h.team==='hero'&&MODES[G.mode].miss)MODES[G.mode].miss();
@@ -438,9 +450,9 @@ function drawPortals(t){
 const DAY_T=45,NIGHT_T=30,VIS_NIGHT=250,VIS_DAY=470,LVL_MAX=15;
 function lvlOf(k){return Math.max(0,Math.min(LVL_MAX,k|0));}
 function myKills(){return G.online?(NET.kills|0):(G.sH|0);}
-function rangeFor(L){return 560+16*L;}
+function rangeFor(L){return 560+20*L;}
 function speedFor(L,haste){return (240+6*L)*(haste>0?1.55:1);}
-function visFor(L){const d=VIS_DAY+10*L,n=VIS_NIGHT+8*L,k=G.nk||0;return d+(n-d)*k;}
+function visFor(L){const d=VIS_DAY+18*L,n=VIS_NIGHT+16*L,k=G.nk||0;return d+(n-d)*k;}
 function applyLevels(){
   if(!(G.mode==='duelo'||G.mode==='online'))return;
   const L=lvlOf(myKills());
@@ -451,6 +463,16 @@ function applyLevels(){
 function setNight(n,quiet){
   G.night=n;G.dnT=n?NIGHT_T:DAY_T;if(quiet){G.nk=n?1:0;return;}
   sfx(n?'whirl':'win');banner(n?'Cae la noche':'Amanece',n?'Tu visión se reduce':'Tu visión se amplía',1.5);
+}
+let clkKey='';
+const clockEl=document.getElementById('clock'),clkIco=document.getElementById('clkIco'),clkMk=document.getElementById('clkMk'),clkTxt=document.getElementById('clkTxt');
+function syncClock(){
+  const on=!!(G&&!G.over&&(G.mode==='duelo'||G.mode==='online')&&G.dnT!==undefined);
+  if(!on){if(!clockEl.hidden){clockEl.hidden=true;clkKey='';}return;}
+  const left=Math.max(0,G.dnT),sec=Math.ceil(left),cyc=DAY_T+NIGHT_T,pos=G.night?(DAY_T+NIGHT_T-left)/cyc:(DAY_T-left)/cyc;
+  const k=(G.night?'n':'d')+sec+'|'+Math.round(pos*96);if(k===clkKey)return;clkKey=k;
+  clockEl.hidden=false;clkIco.classList.toggle('moon',!!G.night);clkMk.style.left=(clamp(pos,0,1)*100)+'%';
+  clkTxt.textContent=(G.night?'Amanece en ':'Anochece en ')+sec+' s';
 }
 function dnTick(dt){G.dnT-=dt;if(G.dnT<=0){const n=!G.night;if(G.online)broadcast({t:'dn',n:n?1:0});setNight(n);}}
 function visionSources(){
@@ -1169,6 +1191,7 @@ function fx(dt){
 function step(dt){
   heroUpdate(dt);
   MODES[G.mode].update(dt);
+  if(G.online&&!NET.isHost&&G.dnT>0)G.dnT=Math.max(0,G.dnT-dt);
   if(G.revealT>0)G.revealT-=dt;if(G.aiRevealT>0)G.aiRevealT-=dt;
   applyLevels();
   if(G.runes&&!G.over&&!(G.freeze>0)){runesStep(dt);projStep(dt);tornStep(dt);runeTouch();illStep(dt);twStep(dt);}
@@ -1181,6 +1204,7 @@ let last=0;
 function frame(ts){
   const dt=Math.min(.033,(ts-last)/1000||0);last=ts;
   netTick();
+  syncClock();
   syncPowers();
   {const pl=!!(G&&!G.over);if(pl!==document.body.classList.contains('playing'))document.body.classList.toggle('playing',pl);const js=pl&&(coarse||touchMode);if(joyEl.hidden===js){joyEl.hidden=!js;if(!js){joy.id=null;joy.mx=joy.my=0;knob.style.transform='';}}}
   if(G&&!G.paused){if(!G.over)step(dt);else{fx(dt);if(G.endT>0){G.endT-=dt;if(G.endT<=0)showResult();}}}
@@ -1256,7 +1280,7 @@ function drawUnit(u,t){
   }
 }
 function drawHook(h){
-  const pts=[{x:h.owner.x,y:h.owner.y},...h.pts.slice(1),{x:h.hx,y:h.hy}];
+  const pts=[h.self?{x:h.home.x,y:h.home.y}:{x:h.owner.x,y:h.owner.y},...h.pts.slice(1),{x:h.hx,y:h.hy}];
   ctx.lineJoin='round';ctx.lineCap='round';
   const path=()=>{ctx.beginPath();pts.forEach((p,i)=>(i&&!p.jump)?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));};
   ctx.strokeStyle='#2a1b10';ctx.lineWidth=6;path();ctx.stroke();
