@@ -82,6 +82,12 @@ button.chip{cursor:pointer}button.chip:hover{border-color:var(--t-ink)}
 select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px solid #3b5645;border-radius:6px;padding:8px}
 .hostrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .lobbyhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.reqs{display:flex;flex-direction:column;gap:8px;border:2px solid var(--rust);border-radius:6px;padding:10px 12px;background:#1d2a1c}
+.reqs ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.req{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.req span{flex:1;min-width:0;font-size:19px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.req .btn,.lobbyhead .inv{flex:none;min-width:0;padding:8px 12px;font-size:14px}
+.lobbyhead .inv{margin-left:auto}
 .lobbyhead .big{font-size:44px;letter-spacing:.08em}
 #codeIn{flex:1;min-width:120px;font:400 22px var(--display);letter-spacing:.2em;text-transform:uppercase;padding:10px 12px;border-radius:6px;border:2px solid #3b5645;background:#0f1a14;color:var(--bone)}
 #codeIn:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
@@ -153,14 +159,15 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
       <div class="panel">
         <h1><em>Multijugador</em></h1>
         <div class="stack" id="onCtl">
-          <p class="lede">De 2 a 4 jugadores en tiempo real, cada uno en su equipo. Uno crea la sala y pasa el código de 4 letras; los demás lo escriben y tocan «Unirse». No hace falta cuenta ni estar en la misma red.</p>
+          <p class="lede">De 2 a 4 jugadores en tiempo real, cada uno en su equipo. Uno crea la sala y pasa el código de 4 letras (o la invitación); los demás lo escriben y envían una solicitud que el anfitrión acepta. No hace falta cuenta ni estar en la misma red.</p>
           <label class="fld" for="nameIn">Tu nombre</label>
           <input id="nameIn" class="txt" maxlength="12" placeholder="Morko" autocomplete="off" spellcheck="false">
           <button class="btn" type="button" id="btnCreate">Crear sala</button>
-          <div class="row"><input id="codeIn" maxlength="4" placeholder="CÓDIGO" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Código de sala"><button class="btn ghost" type="button" id="btnJoin">Unirse</button></div>
+          <div class="row"><input id="codeIn" maxlength="4" placeholder="CÓDIGO" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Código de sala"><button class="btn ghost" type="button" id="btnJoin">Pedir unirse</button></div>
         </div>
         <div class="stack" id="lobby" hidden>
-          <div class="lobbyhead"><span class="fld">Código de sala</span><span class="big" id="codeShow">----</span></div>
+          <div class="lobbyhead"><span class="fld">Código de sala</span><span class="big" id="codeShow">----</span><button class="btn ghost inv" type="button" id="btnInvite">Invitar</button></div>
+          <div class="reqs" id="reqBox" hidden><span class="fld">Solicitudes para unirse</span><ul id="reqList"></ul></div>
           <div class="teams">
             <div class="team t0"><h2>Equipo Fuego</h2><ul id="list0"></ul><button class="btn tbtn" type="button" id="join0">Unirme a Fuego</button></div>
             <div class="team t1"><h2>Equipo Agua</h2><ul id="list1"></ul><button class="btn tbtn" type="button" id="join1">Unirme a Agua</button></div>
@@ -851,7 +858,7 @@ const TEAM=[
   {name:'Fuego',chain:'#e0812c',eye:'#ffd25a',skins:[['#b4562a','#6e2e14'],['#d38440','#8f4d1d']]},
   {name:'Agua',chain:'#46b4d8',eye:'#dcfbff',skins:[['#2f7f9a','#174a5c'],['#4ea6c3','#22647b']]}
 ];
-const NET={peer:null,isHost:false,host:null,conns:{},code:'',myId:null,players:{},me:{},gm:0,c:0,hkId:0,phase:'off',target:20,last:0,dirty:false,next:1};
+const NET={reqs:[],peer:null,isHost:false,host:null,conns:{},code:'',myId:null,players:{},me:{},gm:0,c:0,hkId:0,phase:'off',target:20,last:0,dirty:false,next:1};
 const PREFIX='garfio-pantano-';
 const KEYS=['n','tm','gm','c','x','y','a','hk','got','dead','at','fo','st','lf','tw','il','lv'];
 const ID_RE=/^(h|p\d{1,4})$/;
@@ -878,6 +885,7 @@ function myName(){const v=(nameIn.value||'').trim().slice(0,12);return v||'Jugad
 function countTeams(){const c=[0,0];for(const id in NET.players)c[NET.players[id].tm|0]++;return c;}
 function resetMe(){NET.gm=0;NET.c=0;NET.players={};NET.conns={};NET.host=null;NET.myId=null;NET.me={n:myName(),tm:0,gm:0,c:0,hk:null,got:null,dead:false};}
 function leaveRoom(){
+  for(const r of NET.reqs){try{r.c.close();}catch(e){}}NET.reqs=[];
   for(const id in NET.conns){try{NET.conns[id].close();}catch(e){}}
   try{NET.host&&NET.host.close();}catch(e){}
   try{NET.peer&&NET.peer.destroy();}catch(e){}
@@ -896,16 +904,11 @@ function hostRoom(tries){
   NET.players={h:{...NET.me}};
   peer.on('open',()=>{NET.phase='lobby';showLobby();});
   peer.on('connection',c=>{
-    c.on('open',()=>{
-      if(NET.phase!=='lobby'){sendRaw(c,{t:'busy'});setTimeout(()=>c.close(),400);return;}
-      if(Object.keys(NET.players).length>=4){sendRaw(c,{t:'full'});setTimeout(()=>c.close(),400);return;}
-      const id='p'+(NET.next++),cnt=countTeams();c._pid=id;NET.conns[id]=c;
-      NET.players[id]={n:'Jugador',tm:cnt[0]<=cnt[1]?0:1,gm:NET.gm,c:0};
-      sendRaw(c,{t:'w',pid:id,all:NET.players,target:NET.target});
-      broadcast({t:'p',id,d:NET.players[id]},id);NET.dirty=true;
-    });
+    c.on('open',()=>{setTimeout(()=>{if(!c._pid&&!NET.reqs.some(r=>r.c===c)){try{c.close();}catch(e){}}},10000);});
     c.on('data',m=>hostRecv(c,m));
-    c.on('close',()=>{const id=c._pid;if(!id||NET.conns[id]!==c)return;delete NET.conns[id];delete NET.players[id];broadcast({t:'x',id});NET.dirty=true;});
+    c.on('close',()=>{const id=c._pid;
+      if(!id){const n=NET.reqs.length;NET.reqs=NET.reqs.filter(r=>r.c!==c);if(NET.reqs.length!==n)NET.dirty=true;return;}
+      if(NET.conns[id]!==c)return;delete NET.conns[id];delete NET.players[id];broadcast({t:'x',id});NET.dirty=true;});
     c.on('error',()=>{});
   });
   peer.on('disconnected',()=>{try{peer.reconnect();}catch(e){}});
@@ -915,7 +918,16 @@ function hostRoom(tries){
   });
 }
 function hostRecv(c,m){
-  const id=c._pid;if(!id||!m||typeof m!=='object')return;
+  if(!m||typeof m!=='object')return;
+  if(!c._pid){
+    if(m.t==='req'&&!NET.reqs.some(r=>r.c===c)){
+      const n=String(m.n||'Jugador').trim().slice(0,12)||'Jugador';
+      NET.reqs.push({c,n});NET.dirty=true;const rp=()=>sendRaw(c,{t:'reqwait',busy:NET.phase!=='lobby'?1:0});if(c.open)rp();else c.on('open',rp);
+      sfx('tink');if(NET.phase==='play'&&G&&G.hero)sayU(G.hero.x,G.hero.y,64,n+' pide unirse','#f2c14a');
+    }
+    return;
+  }
+  const id=c._pid;
   if(m.t==='claim'){if(NET.phase==='play'&&typeof m.id==='number')hostClaim(m.id,id);return;}
   if(m.t!=='p')return;
   const d=clean(m.d);
@@ -932,6 +944,16 @@ function setTeam(id,tm){
   if(!NET.isHost)return;
   applyPatch(id,{tm});broadcast({t:'p',id,d:{tm}});
 }
+function acceptReq(r){
+  if(!NET.isHost||NET.phase!=='lobby'||!r.c.open)return;
+  if(Object.keys(NET.players).length>=4)return;
+  NET.reqs=NET.reqs.filter(q=>q!==r);
+  const c=r.c,id='p'+(NET.next++),cnt=countTeams();c._pid=id;NET.conns[id]=c;
+  NET.players[id]={n:r.n,tm:cnt[0]<=cnt[1]?0:1,gm:NET.gm,c:0};
+  sendRaw(c,{t:'w',pid:id,all:NET.players,target:NET.target});
+  broadcast({t:'p',id,d:NET.players[id]},id);NET.dirty=true;sfx('win');
+}
+function denyReq(r){NET.reqs=NET.reqs.filter(q=>q!==r);sendRaw(r.c,{t:'deny'});setTimeout(()=>{try{r.c.close();}catch(e){}},400);NET.dirty=true;}
 function hostStart(){
   const c=countTeams();if(!NET.isHost||!c[0]||!c[1])return;
   NET.gm++;broadcast({t:'start',gm:NET.gm,target:NET.target});beginMatch(NET.gm);
@@ -946,7 +968,7 @@ function joinRoom(code){
   peer.on('open',()=>{
     const c=peer.connect(PREFIX+code.toLowerCase(),{reliable:true,serialization:'json'});NET.host=c;
     c.on('data',guestRecv);
-    c.on('open',()=>{if(NET.myId)netSend({n:myName(),tm:NET.me.tm|0});});
+    c.on('open',()=>{if(NET.myId){netSend({n:myName(),tm:NET.me.tm|0});return;}sendRaw(c,{t:'req',n:myName()});onStatus.textContent='Solicitud enviada a la sala '+code+'. Espera a que el anfitrión la acepte…';});
     c.on('close',()=>{if(NET.host===c)hostGone();});
     c.on('error',()=>{});
     onStatus.textContent='Conectando con la sala '+code+'…';
@@ -976,6 +998,8 @@ function guestRecv(m){
   else if(m.t==='dn'&&G&&G.mode==='online'&&NET.phase==='play')setNight(!!m.n);
   else if(m.t==='torn'&&m.c&&m.c.gm===NET.gm&&G&&G.mode==='online'&&['x0','vx','y0','amp','ph'].every(k=>typeof m.c[k]==='number'))spawnTorn(m.c);
   else if(m.t==='rtake'&&typeof m.id==='number'&&ID_RE.test(m.by))takeRune(m.id,m.by);
+  else if(m.t==='reqwait'){if(!NET.myId)onStatus.textContent=m.busy?'La sala está en plena partida. El anfitrión verá tu solicitud cuando vuelvan a la sala.':'Solicitud enviada a la sala '+NET.code+'. Espera a que el anfitrión la acepte…';}
+  else if(m.t==='deny'){leaveRoom();onCtl.hidden=false;lobbyEl.hidden=true;onStatus.textContent='El anfitrión rechazó tu solicitud.';}
   else if(m.t==='full'||m.t==='busy'){const msg=m.t==='full'?'La sala está llena: ya hay 4 jugadores.':'Esa sala está en plena partida. Intenta cuando vuelvan a la sala.';leaveRoom();onCtl.hidden=false;lobbyEl.hidden=true;onStatus.textContent=msg;}
 }
 function hostGone(){
@@ -1037,10 +1061,21 @@ function renderLobby(){
     const b=document.getElementById('join'+t),mine=P[me]&&(P[me].tm|0)===t;
     b.disabled=mine||cnt[t]>=2;b.textContent=mine?'Estás aquí':(cnt[t]>=2?'Equipo lleno':'Unirme a '+TEAM[t].name);
   }
+  const rb=document.getElementById('reqBox'),rl=document.getElementById('reqList');
+  rb.hidden=!(NET.isHost&&NET.reqs.length);rl.textContent='';
+  const full=Object.keys(P).length>=4;
+  for(const r of NET.reqs){
+    const li=document.createElement('li');li.className='req';
+    const nm=document.createElement('span');nm.textContent=r.n;
+    const ok=document.createElement('button');ok.type='button';ok.className='btn';ok.textContent=full?'Sala llena':'Aceptar';ok.disabled=full;ok.onclick=()=>acceptReq(r);
+    const no=document.createElement('button');no.type='button';no.className='btn ghost';no.textContent='Rechazar';no.onclick=()=>denyReq(r);
+    li.append(nm,ok,no);rl.append(li);
+  }
+  document.getElementById('btnInvite').hidden=!NET.isHost;
   hostRow.hidden=!NET.isHost;
   btnStart.disabled=!(cnt[0]&&cnt[1]);
   const total=cnt[0]+cnt[1];
-  if(NET.isHost)onStatus.textContent=(cnt[0]&&cnt[1]?'Listo para iniciar: '+cnt[0]+' contra '+cnt[1]+'.':(total<2?'Esperando jugadores… Pásales el código.':'Cada equipo necesita al menos un jugador.'))+' Toca a un jugador para cambiarlo de equipo.';
+  if(NET.isHost)onStatus.textContent=(cnt[0]&&cnt[1]?'Listo para iniciar: '+cnt[0]+' contra '+cnt[1]+'.':(total<2?(NET.reqs.length?'Acepta una solicitud para empezar.':'Esperando jugadores… Pásales el código o la invitación.'):'Cada equipo necesita al menos un jugador.'))+' Toca a un jugador para cambiarlo de equipo.';
   else onStatus.textContent='Partida a '+NET.target+' capturas. Elige tu equipo y espera a que el anfitrión la inicie.';
 }
 function netTick(){if(NET.dirty&&!lobbyEl.hidden&&NET.phase==='lobby'){NET.dirty=false;renderLobby();}}
@@ -1052,6 +1087,13 @@ document.getElementById('m-online').onclick=()=>{menuEl.hidden=true;onlineEl.hid
 document.getElementById('btnCreate').onclick=()=>hostRoom(0);
 function tryJoin(){const c=codeIn.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==4){onStatus.textContent='El código tiene 4 letras o números.';return;}joinRoom(c);}
 document.getElementById('btnJoin').onclick=tryJoin;
+document.getElementById('btnInvite').onclick=async()=>{
+  const url=location.origin+location.pathname+'#'+NET.code,txt='Únete a mi sala de Garfio del Pantano. Código: '+NET.code;
+  try{if(navigator.share){await navigator.share({title:'Garfio del Pantano',text:txt,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  try{await navigator.clipboard.writeText(txt+' '+url);onStatus.textContent='Invitación copiada. Pégala en WhatsApp o donde quieras.';}
+  catch(e){onStatus.textContent='Comparte este enlace: '+url;}
+};
+setTimeout(()=>{const m=/^#([A-Za-z0-9]{4})$/.exec(location.hash);if(!m)return;codeIn.value=m[1].toUpperCase();menuEl.hidden=true;onlineEl.hidden=false;onCtl.hidden=false;lobbyEl.hidden=true;onStatus.textContent='Te invitaron a la sala '+codeIn.value+'. Escribe tu nombre y toca «Pedir unirse».';try{history.replaceState(null,'',location.pathname);}catch(e){}},0);
 codeIn.addEventListener('keydown',e=>{if(e.key==='Enter')tryJoin();});
 document.getElementById('join0').onclick=()=>setTeam(NET.myId,0);
 document.getElementById('join1').onclick=()=>setTeam(NET.myId,1);
