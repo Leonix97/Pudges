@@ -44,6 +44,7 @@ body{background:var(--bog);color:var(--bone);font-family:var(--body);overflow:hi
 .stats{display:inline-flex;gap:12px}
 .st{display:inline-flex;align-items:center;gap:3px;font:700 17px var(--body);color:var(--bone)}
 .st svg{width:20px;height:20px;color:#d8d2c2}
+.st.blind svg,.st.blind b{color:#a98bff;opacity:.55}
 .st.hot svg{color:#ff8a3d;filter:drop-shadow(0 0 4px #ff8a3d)}
 .h2{font-size:16px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 @media (max-width:700px){.hside .mode{display:none}.hmid .sc{font-size:18px}.stats{gap:8px}.h2{display:none}}
@@ -112,7 +113,7 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
 .powers{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:row;gap:12px;z-index:2}
 .pw{position:relative;width:78px;height:78px;touch-action:none;-webkit-tap-highlight-color:transparent;border-radius:50%;border:3px solid var(--pw);background:rgba(10,22,18,.82);color:var(--bone);font:600 15px var(--body);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;box-shadow:0 0 18px -4px var(--pw);touch-action:manipulation}
 .pw .k{font:400 13px var(--display);color:var(--pw)}
-.pw-w{--pw:#9ff2dc}.pw-r{--pw:#9bd86a}.pw-t{--pw:#c9bfff}
+.pw-w{--pw:#9ff2dc}.pw-r{--pw:#9bd86a}.pw-t{--pw:#c9bfff}.pw-b{--pw:#a98bff}
 .pw .cnt{position:absolute;top:-6px;right:-6px;min-width:24px;height:24px;border-radius:12px;background:var(--pw);color:#0d1712;font:700 15px var(--body);display:flex;align-items:center;justify-content:center;padding:0 5px}
 .pw .cnt:empty{display:none}
 .pw.on{background:var(--pw);color:#0d1712}.pw.on .k{color:#0d1712}
@@ -145,6 +146,7 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
     <div class="powers" id="powers" hidden>
       <button class="pw pw-w" type="button" id="pwForce" hidden aria-label="Usar Empujón (tecla Q)"><span class="k">Q</span><span>Empujón</span><span class="cnt" id="cForce"></span></button>
       <button class="pw pw-r" type="button" id="pwAtos" hidden aria-label="Usar Lazo de Raíces (tecla E)"><span class="k">E</span><span>Lazo</span><span class="cnt" id="cAtos"></span></button>
+      <button class="pw pw-b" type="button" id="pwBlind" hidden aria-label="Usar Ceguera (tecla F)"><span class="k">F</span><span>Ceguera</span><span class="cnt" id="cBlind"></span></button>
       <button class="pw pw-t" type="button" id="pwTw" hidden aria-label="Lanzar gancho triple (tecla R)"><span class="k">R</span><span>Triple</span><span class="cnt" id="cTw"></span></button>
     </div>
     <div class="joy" id="joy" hidden><div class="knob" id="knob"></div></div>
@@ -167,8 +169,8 @@ select{font:600 18px var(--body);background:#0f1a14;color:var(--bone);border:2px
           <button class="card" type="button" data-mode="duelo" id="m-duelo"><b>Duelo</b><span>Otro pescador al otro lado del río. Esquiva su garfio y atrápalo con el tuyo. Recoge runas de poder y corazones de vida extra, pero cuidado con la de escarcha y con la noche. Gana el primero a 20.</span><small id="best-duelo">Récord: —</small></button>
           <button class="card" type="button" data-mode="rebote" id="m-rebote"><b>Carambola</b><span>Tu garfio rebota hasta 3 veces en muros. Engancha los muñecos de paja tras las paredes con pocos lanzamientos. 6 niveles.</span><small id="best-rebote">Récord: —</small></button>
         </div>
-        <div class="controls"><strong style="color:var(--bone)">Duelo y Multijugador.</strong> Las runas aparecen quietas en cada orilla: camina sobre ellas o engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,8 s</span><span style="color:#ff7a8a"><i></i>Corazón: vida extra</span><span style="color:#ffd27a"><i></i>Ilusión: 2 copias tuyas</span><span style="color:#c9bfff"><i></i>Triple: gancho triple</span><span style="color:#ff8a3d"><i></i>Velocidad: 8 s más rápido</span><span style="color:#8fe3ff"><i></i>Zeus: ves todo el mapa 6 s</span></span> Los poderes se acumulan. Hay tornados, portales en las paredes de atrás y ciclo de día y noche: tu visión es limitada y se acorta de noche. Cada captura te sube de nivel: más visión, garfio más largo y más velocidad, y tu pescador se ve más oscuro y enojado. Puedes jalar a tus aliados y a tus propias ilusiones. Con el garfio muy largo y los portales abiertos, lánzalo recto hacia atrás para dar la vuelta completa al pantano.</div>
-        <div class="controls"><strong style="color:var(--bone)">Controles.</strong> PC: mueve con <kbd>WASD</kbd> o flechas, haz clic para lanzar (o <kbd>Espacio</kbd> hacia el cursor). Poderes: <kbd>Q</kbd> Empujón, <kbd>E</kbd> Lazo, <kbd>R</kbd> Gancho triple. Celular: arrastra el círculo de abajo a la izquierda para caminar y toca en cualquier otro punto para lanzar.</div>
+        <div class="controls"><strong style="color:var(--bone)">Duelo y Multijugador.</strong> Las runas aparecen quietas en cada orilla: camina sobre ellas o engánchalas con el garfio. <span class="legend"><span style="color:#9ff2dc"><i></i>Viento: Empujón</span><span style="color:#9bd86a"><i></i>Raíces: Lazo</span><span style="color:#bfe4ff"><i></i>Escarcha: te congela 0,8 s</span><span style="color:#ff7a8a"><i></i>Corazón: vida extra</span><span style="color:#ffd27a"><i></i>Ilusión: 2 copias tuyas</span><span style="color:#c9bfff"><i></i>Triple: gancho triple</span><span style="color:#a98bff"><i></i>Oscuridad: deja ciego al rival 6 s</span><span style="color:#ff8a3d"><i></i>Velocidad: 8 s más rápido</span><span style="color:#8fe3ff"><i></i>Zeus: ves todo el mapa 6 s</span></span> Los poderes se acumulan. Hay tornados, portales en las paredes de atrás y ciclo de día y noche: tu visión es limitada y se acorta de noche. Cada captura te sube de nivel: más visión, garfio más largo y más velocidad, y tu pescador se ve más oscuro y enojado. Puedes jalar a tus aliados y a tus propias ilusiones. Con el garfio muy largo y los portales abiertos, lánzalo recto hacia atrás para dar la vuelta completa al pantano.</div>
+        <div class="controls"><strong style="color:var(--bone)">Controles.</strong> PC: mueve con <kbd>WASD</kbd> o flechas, haz clic para lanzar (o <kbd>Espacio</kbd> hacia el cursor). Poderes: <kbd>Q</kbd> Empujón, <kbd>E</kbd> Lazo, <kbd>R</kbd> Gancho triple, <kbd>F</kbd> Ceguera. Celular: arrastra el círculo de abajo a la izquierda para caminar y toca en cualquier otro punto para lanzar.</div>
       </div>
     </div>
 
@@ -246,7 +248,7 @@ document.getElementById('btnSound').onclick=e=>{muted=!muted;e.target.textConten
 /* ---------- entrada ---------- */
 const keys={};
 const KM={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d'};
-addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(KM[e.code]){keys[KM[e.code]]=1;e.preventDefault();}if(e.code==='Space'){e.preventDefault();if(G&&!e.repeat)heroThrow(aim.x,aim.y);}if(!e.repeat&&G){if(e.code==='KeyQ')pressPower('force');else if(e.code==='KeyE')pressPower('atos');else if(e.code==='KeyR')pressPower('tw');else if(e.code==='Escape'&&G.aiming){G.aiming=null;}}});
+addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(KM[e.code]){keys[KM[e.code]]=1;e.preventDefault();}if(e.code==='Space'){e.preventDefault();if(G&&!e.repeat)heroThrow(aim.x,aim.y);}if(!e.repeat&&G){if(e.code==='KeyQ')pressPower('force');else if(e.code==='KeyE')pressPower('atos');else if(e.code==='KeyR')pressPower('tw');else if(e.code==='KeyF')pressPower('blind');else if(e.code==='Escape'&&G.aiming){G.aiming=null;}}});
 addEventListener('keyup',e=>{if(KM[e.code])keys[KM[e.code]]=0;});
 const aim={x:W/2,y:200};
 const JOY=LAND?{x:W-88,y:H-88,R:58}:{x:88,y:768,R:58};
@@ -372,12 +374,12 @@ function banner(txt,sub,t){G.banner={txt,sub:sub||'',t:t||1.4};}
 function removeUnit(u){u.dead=true;G.units=G.units.filter(v=>v!==u);}
 
 /* ---------- runas y poderes ---------- */
-const RUNE={s:{name:'Runa de Velocidad',col:'#ff8a3d',glow:'#ff5a1f'},z:{name:'Rayo de Zeus',col:'#8fe3ff',glow:'#3fb6ff'},i:{name:'Runa de Ilusión',col:'#ffd27a',glow:'#ffb02e'},n:{name:'Runa Triple',col:'#c9bfff',glow:'#8f7cff'},v:{name:'Corazón del Pantano',col:'#ff7a8a',glow:'#e2483d'},w:{name:'Runa del Viento',col:'#9ff2dc',glow:'#5fe0c0'},r:{name:'Runa de Raíces',col:'#9bd86a',glow:'#5fae3a'},f:{name:'Runa de Escarcha',col:'#bfe4ff',glow:'#7cc4ff'}};
-const POW={force:{name:'Empujón'},atos:{name:'Lazo de Raíces'},tw:{name:'Gancho triple'}};
+const RUNE={b:{name:'Runa de Oscuridad',col:'#a98bff',glow:'#5a3cc8'},s:{name:'Runa de Velocidad',col:'#ff8a3d',glow:'#ff5a1f'},z:{name:'Rayo de Zeus',col:'#8fe3ff',glow:'#3fb6ff'},i:{name:'Runa de Ilusión',col:'#ffd27a',glow:'#ffb02e'},n:{name:'Runa Triple',col:'#c9bfff',glow:'#8f7cff'},v:{name:'Corazón del Pantano',col:'#ff7a8a',glow:'#e2483d'},w:{name:'Runa del Viento',col:'#9ff2dc',glow:'#5fe0c0'},r:{name:'Runa de Raíces',col:'#9bd86a',glow:'#5fae3a'},f:{name:'Runa de Escarcha',col:'#bfe4ff',glow:'#7cc4ff'}};
+const POW={force:{name:'Empujón'},atos:{name:'Lazo de Raíces'},tw:{name:'Gancho triple'},blind:{name:'Ceguera'}};
 const TRI_SPREAD=.26,DUEL_T=20,ITEM_MAX=5,LIFE_MAX=3,ILL_T=10,TW_SPEED=620,TW_RANGE=520,LIFT_T=1;
 function LV(){return Math.min(4,(G.sH||0)/5);}
 const PUSH_V=625,PUSH_T=.4,FORCE_RANGE=300,ATOS_RANGE=650,ATOS_SPEED=900,ROOT_T=.8,FROST_T=.8;
-function pickKind(){const r=Math.random();return r<.15?'w':r<.3?'r':r<.43?'n':r<.56?'i':r<.69?'s':r<.77?'z':'f';}
+function pickKind(){const r=Math.random();return r<.14?'w':r<.28?'r':r<.4?'n':r<.52?'i':r<.64?'s':r<.71?'z':r<.8?'b':'f';}
 function addRune(id,k,x,y,vx){G.runes.push({rune:true,id,k,x,y,vx,r:15,ph:rnd(0,6),hooked:null,taken:null});}
 function runesStep(dt){for(const r of G.runes)if(!r.hooked)r.x+=r.vx*dt;}
 function runeSpot(){const top=Math.random()<.5;return{x:Math.round(rnd(50,490)),y:Math.round(top?rnd(70,320):rnd(545,800))};}
@@ -410,7 +412,7 @@ function give(a,k){
   if(k==='z'){zeus(a);return;}
   if(k==='i'){spawnIllusions(a);spark(a.x,a.y,'#ffd27a',18);sayU(a.x,a.y,44,'¡Ilusiones!','#ffd27a');if(isMe)sfx('win');return;}
   if(k==='f'){a.frozen=FROST_T;spark(a.x,a.y,'#cfeaff',16);sayU(a.x,a.y,44,'¡Congelado!','#bfe4ff');if(isMe){sfx('bad');G.aiming=null;}return;}
-  const it={w:'force',r:'atos',n:'tw'}[k];if(!it)return;a.items[it]=Math.min(ITEM_MAX,(a.items[it]||0)+1);spark(a.x,a.y,RUNE[k].col,14);
+  const it={w:'force',r:'atos',n:'tw',b:'blind'}[k];if(!it)return;a.items[it]=Math.min(ITEM_MAX,(a.items[it]||0)+1);spark(a.x,a.y,RUNE[k].col,14);
   if(isMe){sfx('win');sayU(a.x,a.y,44,POW[it].name+(a.items[it]>1?' ×'+a.items[it]:' listo'),RUNE[k].col);}
 }
 function tickActor(a,dt){
@@ -496,8 +498,8 @@ function syncClock(){
     const tt=fmtTime(G.elapsed||0);c.lineWidth=6;c.strokeStyle='rgba(8,14,11,.9)';c.strokeText(tt,cx,cy+1);c.fillStyle='#efe6cf';c.fillText(tt,cx,cy+1);
   }
   const showSt=(G.mode==='duelo'||G.mode==='online')&&G.hero;
-  const L=showSt?(G.hero.lvl|0)+1:0,hot=showSt&&G.hero.haste>0,sk=showSt?L+'|'+hot:'off';
-  if(sk!==statKey){statKey=sk;statsEl.hidden=!showSt;if(showSt){for(const id of ['stHook','stBoot','stEye'])document.getElementById(id).textContent=L;document.getElementById('stBootW').classList.toggle('hot',hot);}}
+  const L=showSt?(G.hero.lvl|0)+1:0,hot=showSt&&G.hero.haste>0,bl=showSt&&G.blindT>0,sk=showSt?L+'|'+hot+'|'+bl:'off';
+  if(sk!==statKey){statKey=sk;statsEl.hidden=!showSt;if(showSt){for(const id of ['stHook','stBoot','stEye'])document.getElementById(id).textContent=L;document.getElementById('stBootW').classList.toggle('hot',hot);document.getElementById('stEye').parentNode.classList.toggle('blind',bl);}}
   const showEnd=G.mode==='online'&&NET.isHost&&NET.target===0&&!G.over;if(btnEnd.hidden===showEnd)btnEnd.hidden=!showEnd;
 }
 btnEnd.onclick=()=>{if(!(G&&G.mode==='online'&&NET.isHost&&!G.over))return;broadcast({t:'end'});G.ended=true;endGame();};
@@ -507,17 +509,18 @@ function visionSources(){
   if(G.online)for(const id in G.others){const a=G.others[id];if(a.tm===G.myTeam&&!a.dead)v.push(a);}
   return v;
 }
-function seen(x,y,pad){if(G.revealT>0)return true;return visionSources().some(s=>dist(s.x,s.y,x,y)<visFor(s.lvl|0)+(pad||0));}
-function aiSees(a,x,y){return G.aiRevealT>0||dist(a.x,a.y,x,y)<visFor(a.lvl|0);}
+function myVis(L){return G.blindT>0?BLIND_VIS:visFor(L);}
+function seen(x,y,pad){if(G.revealT>0&&!(G.blindT>0))return true;return visionSources().some(s=>dist(s.x,s.y,x,y)<myVis(s.lvl|0)+(pad||0));}
+function aiSees(a,x,y){if(G.aiBlindT>0)return dist(a.x,a.y,x,y)<BLIND_VIS;return G.aiRevealT>0||dist(a.x,a.y,x,y)<visFor(a.lvl|0);}
 let fogC=null;
 function drawFog(){
-  if(G.revealT>0||G.dnT===undefined)return;
+  if((G.revealT>0&&!(G.blindT>0))||G.dnT===undefined)return;
   if(!fogC){fogC=document.createElement('canvas');fogC.width=W/2;fogC.height=H/2;}
   const f=fogC.getContext('2d');f.setTransform(.5,0,0,.5,0,0);
   f.globalCompositeOperation='source-over';f.clearRect(0,0,W,H);
-  f.fillStyle='rgba(4,9,18,'+(.5+.38*G.nk).toFixed(3)+')';f.fillRect(0,0,W,H);
+  f.fillStyle=G.blindT>0?'rgba(10,4,20,.94)':'rgba(4,9,18,'+(.5+.38*G.nk).toFixed(3)+')';f.fillRect(0,0,W,H);
   f.globalCompositeOperation='destination-out';
-  for(const s of visionSources()){const R=visFor(s.lvl|0),g=f.createRadialGradient(s.x,s.y,R*.6,s.x,s.y,R*1.08);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(1,'rgba(0,0,0,0)');f.fillStyle=g;f.beginPath();f.arc(s.x,s.y,R*1.1,0,7);f.fill();}
+  for(const s of visionSources()){const R=myVis(s.lvl|0),g=f.createRadialGradient(s.x,s.y,R*.6,s.x,s.y,R*1.08);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(1,'rgba(0,0,0,0)');f.fillStyle=g;f.beginPath();f.arc(s.x,s.y,R*1.1,0,7);f.fill();}
   f.globalCompositeOperation='source-over';
   ctx.drawImage(fogC,0,0,W,H);
   if(G.nk>.3){ctx.globalAlpha=G.nk*.7;ctx.fillStyle='#e8eefc';for(let i=0;i<14;i++){const x=(i*137)%W,y=(i*71)%120+8;ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;}
@@ -527,7 +530,15 @@ function drawHeart(x,y,s){
   ctx.save();ctx.translate(x,y);if(LAND)ctx.rotate(-Math.PI/2);ctx.scale(s,s);ctx.fillStyle='#ff5b6e';ctx.strokeStyle='#5a0d16';ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(0,5);ctx.bezierCurveTo(-9,-1,-6,-9,0,-4);ctx.bezierCurveTo(6,-9,9,-1,0,5);ctx.fill();ctx.stroke();ctx.restore();
 }
-const HASTE_T=8,ZEUS_T=6;
+const HASTE_T=8,ZEUS_T=6,BLIND_T=6,BLIND_VIS=110;
+function blindMe(from){G.blindT=BLIND_T;G.aiming=null;sfx('bad');G.flashT=0;sayU(G.hero.x,G.hero.y,44,'¡Te dejaron ciego!','#a98bff');for(let i=0;i<24;i++){const q=rnd(0,6.28),v=rnd(30,120);G.parts.push({x:G.hero.x,y:G.hero.y,vx:Math.cos(q)*v,vy:Math.sin(q)*v,life:.8,max:.8,col:'#2a1d4a',r:rnd(4,8)});}}
+function castBlind(){
+  const h=G.hero;if(!(h.items.blind>0))return;h.items.blind--;sfx('whirl');
+  sayU(h.x,h.y,44,'¡Ceguera al enemigo!','#a98bff');
+  const tg=G.online?Object.values(G.others).filter(o=>o.tm!==G.myTeam&&!o.dead):(G.ai?[G.ai]:[]);
+  for(const o of tg)for(let i=0;i<14;i++){const q=rnd(0,6.28),v=rnd(20,90);G.parts.push({x:o.x,y:o.y,vx:Math.cos(q)*v,vy:Math.sin(q)*v,life:.9,max:.9,col:'#2a1d4a',r:rnd(4,8)});}
+  if(G.online){NET.bln=(NET.bln||0)+1;netSend({bl:{n:NET.bln,gm:NET.gm}});}else G.aiBlindT=BLIND_T;
+}
 function zeus(a){
   const isMe=a===G.hero;
   if(isMe)G.revealT=ZEUS_T;else G.aiRevealT=ZEUS_T;
@@ -603,6 +614,7 @@ function allies(){return G.online?Object.values(G.others).filter(a=>a.tm===G.myT
 function enemies(){return (G.online?Object.values(G.others).filter(a=>a.tm!==G.myTeam&&!a.dead):(G.ai?[G.ai]:[])).filter(a=>seen(a.x,a.y,a.r));}
 function pressPower(it){
   if(!canAct()||!(G.hero.items[it]>0))return;
+  if(it==='blind'){castBlind();return;}
   if(it==='tw'){if(!touchMode){castTriple(aim.x,aim.y);return;}G.aiming=G.aiming==='tw'?null:'tw';return;}
   if(G.aiming===it){if(it==='force')castForce(G.hero);else G.aiming=null;return;}
   if(it==='force'){
@@ -638,8 +650,8 @@ function castAtos(tg){
   if(G.online){NET.at=(NET.at||0)+1;netSend({at:{n:NET.at,to:tg.id,gm:NET.gm}});}
   sfx('tink');
 }
-const powersEl=document.getElementById('powers'),pwForce=document.getElementById('pwForce'),pwAtos=document.getElementById('pwAtos'),pwTw=document.getElementById('pwTw'),tipEl=document.getElementById('tip');
-for(const [b,it] of [[pwForce,'force'],[pwAtos,'atos'],[pwTw,'tw']]){
+const powersEl=document.getElementById('powers'),pwForce=document.getElementById('pwForce'),pwAtos=document.getElementById('pwAtos'),pwTw=document.getElementById('pwTw'),pwBlind=document.getElementById('pwBlind'),tipEl=document.getElementById('tip');
+for(const [b,it] of [[pwForce,'force'],[pwAtos,'atos'],[pwTw,'tw'],[pwBlind,'blind']]){
   b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressPower(it);});
   b.addEventListener('click',e=>{if(e.detail===0)pressPower(it);});
 }
@@ -648,9 +660,9 @@ function syncPowers(){
   if(G&&G.aiming&&!canAct())G.aiming=null;
   const on=!!(G&&!G.over&&G.hero&&(G.mode==='duelo'||G.mode==='online'));
   const it=on?G.hero.items:{},dis=!canAct(),aim=on?G.aiming||'':'';
-  const k=[on,it.force,it.atos,it.tw,dis,aim].join('|');if(k===powKey)return;powKey=k;
-  powersEl.hidden=!on||!(it.force>0||it.atos>0||it.tw>0);
-  for(const [b,n,c] of [[pwForce,'force','cForce'],[pwAtos,'atos','cAtos'],[pwTw,'tw','cTw']]){b.hidden=!(it[n]>0);b.disabled=dis;b.classList.toggle('on',aim===n);document.getElementById(c).textContent=it[n]>1?it[n]:'';}
+  const k=[on,it.force,it.atos,it.tw,it.blind,dis,aim].join('|');if(k===powKey)return;powKey=k;
+  powersEl.hidden=!on||!(it.force>0||it.atos>0||it.tw>0||it.blind>0);
+  for(const [b,n,c] of [[pwForce,'force','cForce'],[pwAtos,'atos','cAtos'],[pwTw,'tw','cTw'],[pwBlind,'blind','cBlind']]){b.hidden=!(it[n]>0);b.disabled=dis;b.classList.toggle('on',aim===n);document.getElementById(c).textContent=it[n]>1?it[n]:'';}
   tipEl.hidden=!aim;
   tipEl.textContent=aim==='force'?'Toca a un aliado para empujarlo, o toca otra vez Empujón para usarlo en ti':aim==='atos'?'Toca al enemigo que quieres amarrar':aim==='tw'?'Toca hacia dónde lanzar el gancho triple':'';
 }
@@ -746,6 +758,7 @@ const MODES={
       if(a.frozen>0){a.vx=a.vy=0;return;}
       const hk=G.hooks.find(k=>k.team==='hero'&&k.state==='out'&&!k.carry);
       // poderes
+      if(a.items.blind>0&&!(G.blindT>0)&&aiSees(a,h.x,h.y)&&Math.random()<dt*.35){a.items.blind--;blindMe(a);sayU(a.x,a.y,44,'¡Ceguera!','#a98bff');a.cd=Math.min(a.cd,.6);}
       if(a.items.atos&&!h.hooked&&aiSees(a,h.x,h.y)&&!(h.rooted>0)&&dist(a.x,a.y,h.x,h.y)<ATOS_RANGE&&Math.random()<dt*.9){a.items.atos--;spawnProj(a,h,true);sfx('tink');a.cd=Math.min(a.cd,.45);sayU(a.x,a.y,-46,'¡Lazo!','#9bd86a');}
       if(a.items.force&&!a.push&&hk&&hk!==a.fdec&&dist(hk.hx,hk.hy,a.x,a.y)<190){
         a.fdec=hk;
@@ -796,7 +809,7 @@ const MODES={
     slot(id){const P=NET.players;return Math.max(0,this.mates((P[id]&&P[id].tm)|0).indexOf(id));},
     spawn(id){const P=NET.players,t=(P[id]&&P[id].tm)|0,m=this.mates(t),i=Math.max(0,m.indexOf(id)),x=m.length<2?270:(i?370:170);return toView(t?W-x:x,t?140:720);},
     ensure(id){
-      if(!G.others[id]){const pr=NET.players[id],sp=this.spawn(id),a=mkActor(sp[0],sp[1],{});a.id=id;a.tm=pr.tm|0;a.slot=this.slot(id);a.lastHk=pr.hk?pr.hk.id:null;a.lastGot=gotKey(pr.got);a.lastAt=pr.at?pr.at.n:null;a.lastFo=pr.fo?pr.fo.n:null;a.lastTw=pr.tw?pr.tw.n:null;a.ills=[];a.st='';a.dead=false;G.others[id]=a;}
+      if(!G.others[id]){const pr=NET.players[id],sp=this.spawn(id),a=mkActor(sp[0],sp[1],{});a.id=id;a.tm=pr.tm|0;a.slot=this.slot(id);a.lastHk=pr.hk?pr.hk.id:null;a.lastGot=gotKey(pr.got);a.lastAt=pr.at?pr.at.n:null;a.lastFo=pr.fo?pr.fo.n:null;a.lastTw=pr.tw?pr.tw.n:null;a.lastBl=pr.bl?pr.bl.n:null;a.ills=[];a.st='';a.dead=false;G.others[id]=a;}
       return G.others[id];
     },
     drop(id){
@@ -841,6 +854,8 @@ const MODES={
         a.st=typeof pr.st==='string'?pr.st:'';a.life=Math.max(0,Math.min(LIFE_MAX,pr.lf|0));a.lvl=lvlOf(pr.lv);
         const at=pr.at;
         if(at&&at.n!==a.lastAt){a.lastAt=at.n;if(at.gm===NET.gm){const tg=at.to===me?G.hero:G.others[at.to];if(tg)spawnProj(a,tg,tg===G.hero);}}
+        const bl=pr.bl;
+        if(bl&&bl.n!==a.lastBl){a.lastBl=bl.n;if(bl.gm===NET.gm&&a.tm!==G.myTeam&&!(G.dead>0))blindMe(a);}
         const tw=pr.tw;
         if(tw&&tw.n!==a.lastTw){a.lastTw=tw.n;if(tw.gm===NET.gm&&typeof tw.x==='number'&&typeof tw.y==='number'&&typeof tw.a==='number'){const o=toView(tw.x,tw.y);spawnTw(a,o[0],o[1],tw.a+(G.flip?Math.PI:0),a.tm);}}
         a.ills=(Array.isArray(pr.il)?pr.il.slice(0,4):[]).filter(q=>Array.isArray(q)&&typeof q[0]==='number'&&typeof q[1]==='number').map(q=>{const v=toView(q[0],q[1]);return{x:v[0],y:v[1],r:a.r,ang:a.ang,skel:false,lvl:a.lvl};});
@@ -910,7 +925,7 @@ const TEAM=[
 ];
 const NET={reqs:[],peer:null,isHost:false,host:null,conns:{},code:'',myId:null,players:{},me:{},gm:0,c:0,hkId:0,phase:'off',target:20,last:0,dirty:false,next:1};
 const PREFIX='garfio-pantano-';
-const KEYS=['n','tm','gm','c','x','y','a','hk','got','dead','at','fo','st','lf','tw','il','lv'];
+const KEYS=['n','tm','gm','c','x','y','a','hk','got','dead','at','fo','st','lf','tw','il','lv','bl'];
 function parseTarget(v){v=+v;return v===0?0:(v>0?Math.floor(v):20);}
 const ID_RE=/^(h|p\d{1,4})$/;
 function idCmp(a,b){const r=k=>k==='h'?0:+k.slice(1);return r(a)-r(b);}
@@ -1083,7 +1098,7 @@ function takeRune(id,by){
 }
 function beginMatch(gm){
   NET.gm=gm;NET.c=0;NET.kills=0;NET.phase='play';NET.pend={};NET.runeOwner={};NET.rid=NET.rid||0;
-  netSend({gm,c:0,hk:null,got:null,dead:false,at:null,fo:null,tw:null,il:[],st:'',lf:0,lv:0});
+  netSend({gm,c:0,hk:null,got:null,dead:false,at:null,fo:null,tw:null,bl:null,il:[],st:'',lf:0,lv:0});
   start('online');
 }
 function backToLobby(){
@@ -1223,7 +1238,7 @@ function step(dt){
   heroUpdate(dt);
   MODES[G.mode].update(dt);
   if(G.online&&!NET.isHost&&G.dnT>0)G.dnT=Math.max(0,G.dnT-dt);
-  if(G.revealT>0)G.revealT-=dt;if(G.aiRevealT>0)G.aiRevealT-=dt;
+  if(G.revealT>0)G.revealT-=dt;if(G.aiRevealT>0)G.aiRevealT-=dt;if(G.blindT>0)G.blindT-=dt;if(G.aiBlindT>0)G.aiBlindT-=dt;
   applyLevels();
   if(G.runes&&!G.over&&!(G.freeze>0)){runesStep(dt);projStep(dt);tornStep(dt);runeTouch();illStep(dt);twStep(dt);}
   if(G.night!==undefined){const tg=G.night?1:0;G.nk=(G.nk||0)+Math.sign(tg-(G.nk||0))*Math.min(Math.abs(tg-(G.nk||0)),dt/2.5);}
@@ -1350,6 +1365,7 @@ function drawRune(r,t){
   ctx.lineWidth=2;ctx.lineCap='round';ctx.beginPath();
   if(r.k==='w'){for(let i=-1;i<=1;i++){ctx.moveTo(x-7,y+i*5);ctx.quadraticCurveTo(x,y+i*5-4,x+7,y+i*5);}}
   else if(r.k==='i'){ctx.arc(x-4,y,5,0,7);ctx.moveTo(x+9,y);ctx.arc(x+4,y,5,0,7);}
+  else if(r.k==='b'){ctx.moveTo(x-8,y);ctx.quadraticCurveTo(x,y-7,x+8,y);ctx.quadraticCurveTo(x,y+7,x-8,y);ctx.moveTo(x-7,y-7);ctx.lineTo(x+7,y+7);}
   else if(r.k==='s'){ctx.moveTo(x-7,y-6);ctx.lineTo(x-1,y);ctx.lineTo(x-7,y+6);ctx.moveTo(x+1,y-6);ctx.lineTo(x+7,y);ctx.lineTo(x+1,y+6);}
   else if(r.k==='z'){ctx.moveTo(x+3,y-9);ctx.lineTo(x-4,y+1);ctx.lineTo(x+2,y+1);ctx.lineTo(x-3,y+9);}
   else if(r.k==='n'){ctx.moveTo(x,y+8);ctx.lineTo(x-7,y-6);ctx.moveTo(x,y+8);ctx.lineTo(x,y-8);ctx.moveTo(x,y+8);ctx.lineTo(x+7,y-6);}
